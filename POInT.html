@@ -1,0 +1,181 @@
+
+<html>
+<head>
+    <meta name="Author" content="Gavin Conant">
+  <title>POInT (alpha) Documentation</title>
+</head>
+<body>
+<center>
+    <h3>POInT (Polyploidy Orthology Inference Tool; alpha) Documentation
+<hr width="100%"></h3>
+</center>
+
+<h4>Revision History:</h4>
+None
+<br>
+<br>
+
+<h3>Downloading POInT</h3>
+The current release of POInT is avaliable from:
+<ul>
+    <li><a href="http://conantlab.org/POInT/POInT.tar">Our website</a></li>
+    <li><a href="http://www.github.com/gconant0/POInT">GitHub</a></li></ul>
+<br>
+<br>
+
+<h3>
+Installation:</h3>
+&nbsp;&nbsp;&nbsp; See the <a href="http://conantlab.org/POInT/INSTALL">INSTALL</a>
+file included with POInT for installation instructions.  Note that use of the parallel OpenMP version is highly recommended for large datasets.
+<br>
+<br>
+
+<h3>
+    Dependancies:</h3>
+POInT uses the <a href="http://www.netlib.org/lapack/">lapack</a> numerical linear algebra routines to compute transition probability matrices. The POInT distribution includes a copy of the necessary routines and the f2c package that links them to c and c++ executables. However, the configure.pl script will first search your system for installed copies of these libraries and use them in preference to the included copies if they exist.  See the INSTALL document for details.
+<br>
+<br>
+The illustration capabilities of POInT depend on the <a href="https://www.gnu.org/software/plotutils/">GNU plotutils</a> package. If you want to compile POInT with this capability, first install plotutils and use ./configure.pl -p:[PATH TO libplot] when configuring POInT compilation.
+    <br><br>
+
+
+<h3>Citing POInT:</h3>
+<p style="padding-left: 36pt; text-indent: -36pt"><b> Conant, G. C.</b> and K. H. Wolfe. (2008) Probabilistic cross-species inference of orthologous genomic regions created by whole-genome duplication in yeast, <i> Genetics</i> <b>179</b>: 1681-1692.</p>
+<p style="padding-left: 36pt; text-indent: -36pt">Emery, M., M. M. S. Willis, Y. Hao, K. Barry, K. Oakgrove, Y. Peng, J. Schmutz, E. Lyons, J. C. Pires, P. P. Edger, and <b>G. C. Conant</b>. 2018. Preferential retention of genes from one parental genome after polyploidy illustrates the nature and scope of the genomic conflicts induced by hybridization. <i>PLoS Genetics</i> <b>14</b>: e1007267.</p>
+<br>
+<br>
+<h3>
+Running POInT:</h3>
+A basic POInT run requires a minimum of three types of files and a specification of the polyploidy type:
+<ul>
+    <li>-d:<#> , where #=2 for WGD, =3 for a WGT and =4 for an octaploidy (very very slow)</li>
+    <li>Files listing the order of DCS genes in the extant genomes</li>
+    <li>An inferred ancestral order of the DCS blocks</li>
+    <li>A phylogenetic model of post-polyploidy gene loss</li>
+    </ul>
+
+Additionally, it is very useful to specify an assumed phylogenetic topology: if no tree file is given, POInT will try to search all possible topologies, which will be intractable for datasets larger than 5 or 6 genomes.
+
+
+<h3>
+    An example POInT analysis</h3>
+
+Our website hosts <a href="http://conantlab.org/data/POInT_datasets">examples</a> for each type of file.  For instance, one possible run can be done with:
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Brachypodium_distachyon_POInT_geneorders.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Oropetium_thomaeum_POInT_geneorders.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Setaria_italica_POInT_geneorders.txt</pre>
+    
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Sorghum_bicolor_POInT_geneorders.txt</pre>
+    
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Grass_rho_OptOrder.txt</pre>
+   
+<pre>% wget http://conantlab.org/data/POInT_datasets/Models/WGD_bias_fix_model.txt</pre>
+
+<pre>% POInT -d:2 -g:Brachypodium_distachyon_POInT_geneorders.txt -g:Oropetium_thomaeum_POInT_geneorders.txt -g:Setaria_italica_POInT_geneorders.txt -g:Sorghum_bicolor_POInT_geneorders.txt -o:Grass_rho_OptOrder.txt  -m:WGD_bias_fix_model.txt </pre><br><br>
+
+This command will perform a global search for the optimal topology among these 4 genomes and save that topology as searchWGXexhaust_Grass_rho_OptOrder.txt0.tre.
+
+<h3>POInT options are:</h3>
+<br>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr nosave="">
+      <td>
+      <h4>Option</h4>
+&nbsp;</td>
+      <td nosave="">
+      <h4>Description</h4>
+      </td>
+      <td>
+      <h4>Example</h4>
+      </td>
+      <td>
+      <h4>Default</h4>
+      </td>
+    </tr>
+    <tr>
+        <td>-d:</td>
+        <td>Duplication/Polyploidy level</td>
+        <td>-d:2</td>
+        <td>None/<b>Required</b></td>
+    </tr>
+    <tr>
+        <td>-g:</td>
+      <td>Extant genome file</td>
+      <td><-g:Brachypodium_distachyon_POInT_geneorders.txt</td>
+      <td>None/<b>Required</b></td>
+    </tr>
+    
+    <tr>
+        <td>-o:</td>
+      <td>File of double-conserved synteny blocks in ancestral order</td>
+      <td>-o:Grass_rho_OptOrder.txt</td>
+      <td>None/<b>Required</b></td>
+    </tr>
+    <tr>
+        <td>-m:</td>
+      <td>Model file</td>
+      <td>-m:WGD_bias_fix_model.txt</td>
+      <td>None/<b>Required</b></td>
+    </tr>
+    <tr>
+        <td>-t:</td>
+      <td>Assumed phylogenetic topology, Nexis format</td>
+      <td>-t:Grass_rho_OptTopo.tre</td>
+      <td>None/<i>Optional</i></td>
+    </tr>
+    <tr>
+        <td>-r:</td>
+      <td>Seperate root-branch model file</td>
+      <td>-r:WGD_root_model.txt</td>
+      <td>None/<i>Optional</i></td>
+    </tr>
+    <tr>
+        <td>-p:</td>
+      <td>File to save orthology predictions/posterior probabilities to</td>
+      <td>-p:Grass_rho_OptTopo_WGD_bias_fix_post_probs.txt</td>
+      <td><None/<i>Optional</i></td>
+    </tr>
+    <tr>
+        <td>-c:</td>
+        <td>File to save model state conditional probabilities to</td>
+        <td>-p:Grass_rho_OptTopo_WGD_bias_fix_cond_probs.txt</td>
+        <td><None/<i>Optional</i></td>
+    </tr>
+    <tr>
+      <td>-noopt</td>
+      <td>Do not perform likelihood optimization</td>
+      <td>-noopt</td>
+      <td><None/<i>Optional</i></td>
+    </tr>
+    <tr>
+        <td>-i:#</td>
+        <td>Draw tracking diagrams with # pillars per diagram (requires installation with Gnu PlotUtils, see INSTALL)</td>
+      <td>-i:50</td>
+      <td><None/<i>Optional</i></td>
+    </tr>
+    <tr>
+      <td>-zerolengthfixed</td>
+      <td>Treat all zero length branches in the phylogeny as fixed at length=0</td>
+      <td>-zerolengthfixed</td>
+      <td><None/<i>Optional</i></td>
+    </tr>
+    <tr>
+        <td>-x:#</td>
+      <td>Number of topologies to save from exhaustive tree searching (ignored if a topology is given)</td>
+      <td>-s:2</td>
+      <td>-s:1/<i>Optional</i></td>
+    </tr>
+    
+  </tbody>
+</table>
+
+<h3>Notes and Tips:</h3>
+<br>
+Coming soon.
+</body>
+</html>
