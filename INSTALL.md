@@ -1,18 +1,18 @@
-POInT installation instructions:
+# POInT installation instructions:
 
-Basic Instructions:
-The following 4 commands should generate POInT  from POInT.tar--
+## Basic Instructions:
+The following 4 commands should generate POInT  from POInT.tar-- <br>
 the % indicates your prompt--don't type it :)
 
 
-Type
-% tar xvf POInT.tar
+### Type
+`% tar xvf POInT.tar`
 
 Now, you will need to make the package.  
 
-*****BUILDING POInT******
+### \*\*\*\*\*BUILDING POInT\*\*\*\*\*
 The previous command will create a new directory called POInT. Enter that directory
-% cd POInT
+`% cd POInT`
 
 Now the configure script will make some simple checks of your OS and build the files needed for compiling POInT
 %./configure.pl
