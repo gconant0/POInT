@@ -2,7 +2,7 @@
 
 ### Basic Instructions:
 The following 4 commands should generate POInT  from POInT.tar-- <br>
-the % indicates your prompt--don't type it :)
+the `%` indicates your prompt--don't type it :)
 
 
 ### Type
