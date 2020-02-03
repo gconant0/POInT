@@ -1,7 +1,7 @@
 # POInT installation instructions:
 
 ### Basic Instructions:
-The following 4 commands should generate POInT  from POInT.tar
+The following 4 commands should generate POInT  from POInT.tar<br>
 --the `%` indicates your prompt--don't type it :)
 
 
