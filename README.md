@@ -1,8 +1,6 @@
 # [POInT](http://conantlab.org/POInT/POInT.html)
 Source code for the Polyploidy Orthology Inference Tool<br>
-Download POInT.tar and use<br>
-```% tar xvf POInT.tar``` 
-to extract.<br>
+
 [INSTALL](https://github.com/gconant0/POInT/blob/master/INSTALL.md) in the POInT directory gives installation instructions.<br>
 HTML documentation (POInT.html) is also included.
 
