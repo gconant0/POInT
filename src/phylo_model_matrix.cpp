@@ -688,19 +688,21 @@ Phylo_Matrix::Phylo_Matrix(Exchange *cexchange, string model_file)
             
             
             if (foundcopy==TRUE) {
-                if (num_params_per_entry[dupl_state][c1_state] != num_params_per_entry[dupl_state][c2_state])
-                    same=FALSE;
-                else {
-                    for(l=0; l<num_params_per_entry[dupl_state][c1_state]; l++) {
-                        if (matrix_params[dupl_state][c1_state][l] != matrix_params[dupl_state][c2_state][l]) same=FALSE;
-                    }
-                }
-                if (con1_state != -1) {
-                    if (num_params_per_entry[con1_state][c1_state] != num_params_per_entry[con2_state][c2_state])
+                if (!((matrix_descript[dupl_state][c1_state]==ONE) &&(matrix_descript[dupl_state][c2_state]==ONE))) {
+                    if (num_params_per_entry[dupl_state][c1_state] != num_params_per_entry[dupl_state][c2_state])
                         same=FALSE;
                     else {
                         for(l=0; l<num_params_per_entry[dupl_state][c1_state]; l++) {
-                            if (matrix_params[con1_state][c1_state][l] != matrix_params[con2_state][c2_state][l]) same=FALSE;
+                            if (matrix_params[dupl_state][c1_state][l] != matrix_params[dupl_state][c2_state][l]) same=FALSE;
+                        }
+                    }
+                    if (con1_state != -1) {
+                        if (num_params_per_entry[con1_state][c1_state] != num_params_per_entry[con2_state][c2_state])
+                            same=FALSE;
+                        else {
+                            for(l=0; l<num_params_per_entry[dupl_state][c1_state]; l++) {
+                                if (matrix_params[con1_state][c1_state][l] != matrix_params[con2_state][c2_state][l]) same=FALSE;
+                            }
                         }
                     }
                 }

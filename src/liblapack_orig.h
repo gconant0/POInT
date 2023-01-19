@@ -30,9 +30,9 @@ extern "C" int dgemm_ (char *transa, char *transb, long int *m, long int *n,
 
 
 //extern "C" int dgemm_ (char *transa, char *transb, long int *m, long int *n,
- //                     long int *k, double *alpha, double *a,
- //                      long int *lda, double *b, long int *ldb,
- //                      double *beta, double *c__, long int *ldc);
+//                       long int *k, double *alpha, double *a,
+//                       long int *lda, double *b, long int *ldb,
+//                       double *beta, double *c__, long int *ldc);
 
 
 
@@ -43,14 +43,4 @@ extern "C" int dgels_(char *trans, int *m, int *n, int *nrhs, double *a, int* ld
 //LQ factorization of underdetermined system
 extern "C" int dgelqf_(int* m, int* n, double* a, int* lda, double* tau, double* work, int* lwork, int* info);
 
-//DGESDD computes the singular value decomposition ( SVD) of a real * M-by-N matrix A
-extern "C" int dgesdd_(char *jobz, long int *m, long int *n, double *
-	a, long int *lda, double *s, double *u, long int *ldu, 
-	double *vt, long int *ldvt, double *work, long int *lwork, 
-	long int *iwork, long int *info);
 
-//DGESVD DGESVD computes the singular value decomposition ( SVD) of a real * M-by-N matrix A,
-extern "C" int dgesvd_(char *jobu, char *jobvt, long int *m, long int *n, 
-	double *a, long int *lda, double *s, double *u, long int *
-	ldu, double *vt, long int *ldvt, double *work, long int *lwork, 
-	long int *info);

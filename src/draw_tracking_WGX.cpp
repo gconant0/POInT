@@ -800,10 +800,10 @@ void rebuild_tree (Branch *curr_old, Branch **lookup_table, Tree *new_tree, int 
 
 int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, int start, int num_per_page, int focus, string focus_name, string filename, BOOL bitmap, BOOL IPC_call, BOOL rescale, std::stringstream *plot_ss, IMAGE_SIZE mysize, int *coords, int arrow_loc, BOOL arrow_left, int arrow_taxa, string tracked_name, string outname, string *prefix_map)
 {
-    int level, i, j, k, thandle, taxa, stop, num_genes, *max_prob_pattern, *last_max_prob_pattern, track_id, slen, find_loc_pillar, num_empty, num_full, my_line_size, base_line_size,
+    int level, i, j, k, thandle, taxa, stop, num_genes, *max_prob_pattern, *last_max_prob_pattern, track_id, slen, find_loc_pillar, num_empty, num_full, my_line_size, base_line_size, **last_box,
         find_loc_track, **taxa_track_ids, other_level, y_loc, my_track, name_line, num_lines, name_pos, cnt_dupl, *cnt_state, cnt_1, cnt_2, *color_ids, realy, realx;
-    double spacex, spacey, border=10, spacer, name_font_size=1.0, center,
-      xcenter, ycenter, label_size, width, boxsize, *tracky, tree_y, tree_o,
+    double spacex, spacey, border=10, spacer, name_font_size=1.0, center, pre_line, my_line, slant_line, y_line, y_top,
+      xcenter, ycenter, label_size, width, boxsize, *tracky, tree_y, tree_o, scale_factor,
     box_x_foot, box_y_foot, text_div, font_size, old_fontsize, my_offset, spacer_x,
     *lastline, offset, offset_y, *max_prob, new_prob, text_width, subtrack_size, font, x_y_aspect, box_dim;
     char write_string[100], new_maxlen, attrib[100], value[100], size_string[25], readchar;
@@ -824,10 +824,15 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
     colors[6]="palegoldenrod";
     colors[7]="wheat1";
     colors[8]="darkolivegreen3";
-    
+    colors[9]="plum";
     
     
     last_drawn=new Gene_Track_List_DX *[the_homologs->get_dupl_level()];
+    last_box=new int*[the_genomes->get_num_genomes()];
+    for(i=0; i<the_genomes->get_num_genomes(); i++) {
+        last_box[i]=new int[the_homologs->get_dupl_level()];
+        for (level=0; level<the_homologs->get_dupl_level(); level++) last_box[i][level]=-1;
+    }
     
     for(level=0; level< the_homologs->get_dupl_level(); level++) last_drawn[level]=0;
     
@@ -995,6 +1000,9 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
         font_size=14;
     }
   
+    
+
+    
     for(level=0; level<the_homologs->get_dupl_level(); level++) {
         for(i=0; i<the_genomes->get_num_genomes(); i++) {
             fullname=(*the_genomes)[i].get_name_string();
@@ -1062,7 +1070,7 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
             
         }
     }
-
+    
     my_line_size=LINE_SIZE;
     //if (the_genomes->get_num_genomes()>6) my_line_size -=2;
     
@@ -1154,7 +1162,12 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
                         else
                             color_ids[j] =8;
                     }
-                    else color_ids[j]=7;
+                    else {
+                        if ((cnt_state[1]+cnt_state[0])== the_genomes->get_num_genomes())
+                            color_ids[j] =9;
+                        else
+                            color_ids[j]=7;
+                    }
                 }
             }
         }
@@ -1209,7 +1222,9 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
         tree_o=8;
 
         if (coords != 0) {
+            
             if (rescale==FALSE) {
+                scale_factor=((double)realx/spacex);
                 coords[0]=(int)((offset/spacex)*(double)realx);
                 coords[1]=(int)(((boxsize)/spacex)*(double)realx);
                 coords[2]= (int)(((box_x_foot-boxsize)/spacex)*(double)realx);
@@ -1219,6 +1234,7 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
                 coords[6]= realy-(int)(((tree_o)/spacey)*(double)realy);
             }
             else {
+                scale_factor=((double)(realx/2.0)/spacex);
                 coords[0]=(int)((offset/spacex)*(double)(realx/2.0));
                 coords[1]=(int)(((boxsize)/spacex)*(double)(realx/2.0));
                 coords[2]= (int)(((box_x_foot-boxsize)/spacex)*(double)(realx/2.0));
@@ -1226,7 +1242,14 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
                 coords[4] = (int)(realy/2.0)-(int)(((tree_o+5.0*tree_y)/spacey)*(double)(realy/2.0));
                 coords[5]= (int)(realy/2.0)-(int)(((tree_o+3.0*tree_y)/spacey)*(double)(realy/2.0));
                 coords[6]= (int)(realy/2.0)-(int)(((tree_o)/spacey)*(double)(realy/2.0));
+                
+                //if (IPC_call==FALSE)
+                   // cout<<"Off: "<<offset<<" SpX SpY "<<spacex<<", "<<spacey<<" Rx Ry: "<<realx<<", "<<realy<<" BF: "<<box_x_foot<<" C: "
+                   // <<coords[0]<<coords[1]<<coords[2]<<coords[3]<<coords[4]<<coords[5]<<coords[6]<<endl;
+                
             }
+            cout<<"Off: "<<offset<<" SpX SpY "<<spacex<<", "<<spacey<<" Rx Ry: "<<realx<<", "<<realy<<" BF: "<<box_x_foot<<" RESC: "<<rescale<<" C: "
+            <<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<" "<<coords[3]<<" "<<coords[4]<<" "<<coords[5]<<" "<<coords[6]<<endl;
         }
         
         
@@ -1294,12 +1317,32 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
                         
                         
                         if (find_loc_pillar != -1) {
+                            if ((find_loc_pillar == last_box[taxa][my_track]) || (my_track != find_loc_track))
                                 pl_fline(find_loc_pillar*box_x_foot+boxsize+offset, tracky[find_loc_track]-taxa*box_y_foot+width/2.0,
-                                             j*box_x_foot+offset,tracky[my_track]-taxa*box_y_foot+width/2.0);
+                                         j*box_x_foot+offset,tracky[my_track]-taxa*box_y_foot+width/2.0);
+                                
+                            else {
+                                
+                                pl_pencolorname("dodgerblue1");
+                                pl_fline(find_loc_pillar*box_x_foot+boxsize+offset, tracky[find_loc_track]-taxa*box_y_foot+(width*0.75),
+                                         find_loc_pillar*box_x_foot+(1.1*boxsize)+offset,tracky[find_loc_track]-taxa*box_y_foot+(width*0.75));
+                                pl_fline(find_loc_pillar*box_x_foot+(1.1*boxsize)+offset, tracky[find_loc_track]-taxa*box_y_foot+(width*0.75),
+                                         find_loc_pillar*box_x_foot+(1.1*boxsize)+offset,tracky[find_loc_track]-taxa*box_y_foot+(width*1.1));
+                                pl_fline(find_loc_pillar*box_x_foot+(1.1*boxsize)+offset, tracky[find_loc_track]-taxa*box_y_foot+(width*1.1),
+                                         j*box_x_foot+offset-(0.1*boxsize),tracky[find_loc_track]-taxa*box_y_foot+(width*1.1));
+                                pl_fline(j*box_x_foot+offset-(0.1*boxsize), tracky[find_loc_track]-taxa*box_y_foot+(width*1.1),
+                                         j*box_x_foot+offset-(0.1*boxsize),tracky[find_loc_track]-taxa*box_y_foot+(width*0.75));
+                                pl_fline(j*box_x_foot+offset-(0.1*boxsize), tracky[find_loc_track]-taxa*box_y_foot+(width*0.75),
+                                         j*box_x_foot+offset,tracky[find_loc_track]-taxa*box_y_foot+(width*0.75));
+                                pl_pencolorname("black");
+                                                                                                                                   
+                            }
                         }
+      
                         else {
-                            pl_fline(offset-0.1*offset, tracky[my_track]-taxa*box_y_foot+width/2.0,
-                                     j*box_x_foot+offset,tracky[my_track]-taxa*box_y_foot+width/2.0);
+                            if (last_box[taxa][my_track] == -1)
+                                pl_fline(offset-0.1*offset, tracky[my_track]-taxa*box_y_foot+width/2.0,
+                                         j*box_x_foot+offset,tracky[my_track]-taxa*box_y_foot+width/2.0);
                         }
                     }
               
@@ -1362,6 +1405,9 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
                     }
                     //pl_fillcolorname("yellow");
                     pl_fbox (j*box_x_foot+offset, tracky[my_track]-taxa*box_y_foot, j*box_x_foot+boxsize+offset, tracky[my_track]-taxa*box_y_foot+width);
+                    
+                    last_box[taxa][my_track]=j;
+                    
                     if (start+j == focus) {
                         pl_flinewidth(1.0);    /* set line thickness */
                         pl_pencolorname("black");
@@ -1505,9 +1551,9 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
                                 find_loc_pillar = k;
                         }
                     }
-                    if (find_loc_pillar == -1)
+                    if ((find_loc_pillar == -1) && (last_box[taxa][level] != -1))
                         pl_fline(lastline[level], tracky[level]-taxa*box_y_foot+width/2.0,
-                                 (num_genes-1)*box_x_foot+boxsize+offset+offset*0.1,tracky[level]-taxa*box_y_foot+width/2.0);
+                                 (num_genes-1)*box_x_foot+boxsize+offset+offset*0.1, tracky[level]-taxa*box_y_foot+width/2.0);
               
                 }
             }
@@ -1515,7 +1561,26 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
 	  
     }
 
-
+#if 1
+    y_line=spacey=(0.4*border);
+    y_top=spacey=(0.9*border);
+    pre_line= ((double)start/(double)the_homologs->get_num_homologs()) *(spacex - 2.0*border);
+    my_line=((double)stop/(double)the_homologs->get_num_homologs()) *(spacex - 2.0*border);
+    slant_line=(my_line-pre_line)*0.2;
+    pl_flinewidth (1.0);
+    pl_pencolorname ("red");
+    pl_fline(pre_line, y_line, pre_line-slant_line, y_top);
+    pl_fline(my_line, y_line, my_line+slant_line, y_top);
+    
+    pl_pencolorname ("slategray");
+    pl_flinewidth (3.0);
+    pl_fline(border, y_line, pre_line, y_line);
+    pl_pencolorname ("red");
+    pl_fline(pre_line, y_line, my_line, y_line);
+    pl_pencolorname ("slategray");
+    pl_fline(my_line, y_line, spacex-border, y_line);
+    pl_flinewidth (1.0);
+#endif
   
     delete[] max_prob_pattern;
     delete[] max_prob;
@@ -1530,7 +1595,8 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
     
     for(i=0; i<num_per_page; i++) delete[] taxa_track_ids[i];
     delete[] taxa_track_ids;
-	
+    for(i=0; i<the_genomes->get_num_genomes(); i++) {delete[] last_box[i];}
+    delete[] last_box;
    
     //fflush(outfile);
   if (pl_closepl () < 0)      /* close Plotter */ {
@@ -1618,10 +1684,36 @@ void get_max_prob_pattern(Exchange *curr_exchange, Phylo_Matrix *the_matrix, Plo
 }
 #endif
 
+#define NUM_REPLACE 10
+
 string extract_name(string input_name)
 {
-    string ret_val, match, end_string;
+    int i;
+    string ret_val, match, start, end, end_string, name_trims[NUM_REPLACE], name_replace[NUM_REPLACE], pro_g;
     std::size_t found, found2;
+    
+    name_trims[0]="augustus_masked-";
+    name_trims[1]="snap_masked-";
+    name_trims[2]="maker-";
+    name_trims[3]="-processed-gene-";
+    name_trims[4]="-augustus-gene-";
+    name_trims[5]="Cram_his_";
+    name_trims[6]="-snap-gene-";
+    name_trims[7]="fgenesh2_kg.";
+    name_trims[8]="scaffold_";
+    name_trims[9]="__";
+    
+    
+    name_replace[0]="AM-";
+    name_replace[1]="SM-";
+    name_replace[2]="MK-";
+    name_replace[3]="-pg";
+    name_replace[4]="-ag";
+    name_replace[5]="Ch";
+    name_replace[6]="-sg";
+    name_replace[7]="fgk.";
+    name_replace[8]="scf_";
+    name_replace[9]="_";
     
     ret_val=input_name;
     
@@ -1677,7 +1769,21 @@ string extract_name(string input_name)
             ret_val=ret_val.substr(0,  found);
         }
     }
-
+    
+    for(i=0; i<NUM_REPLACE; i++) {
+        found=ret_val.find(name_trims[i]);
+        if (found!=std::string::npos) {
+            if (found ==0) {
+                ret_val = ret_val.substr(name_trims[i].length(), ret_val.length() - name_trims[i].length());
+                ret_val = name_replace[i] + ret_val;
+            }
+            else {
+                start = ret_val.substr(0,found);
+                end = ret_val.substr(found+name_trims[i].length(),ret_val.length() - ( name_trims[i].length() +start.length() ));
+                ret_val = start + name_replace[i] +end;
+            }
+        }
+    }
 
     if (ret_val.length()>25) {
         ret_val=ret_val.substr(0,15);

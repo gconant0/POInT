@@ -2,7 +2,7 @@
 
 use strict;
 
-my($i, $plot_path, $parallel, %paths, $cc, $CC, $make_daemon, $lapack_installed, $lapack_version, $blas_version, $plot_version, $cgi_installed, $boost_installed, @out, $myloc, $j);
+my($i, $plot_path, $parallel, %paths, $version, $cc, $CC, $make_daemon, $lapack_installed, $lapack_version, $blas_version, $plot_version, $cgi_installed, $boost_installed, @out, $myloc, $j);
 
 $lapack_installed=0;
 $boost_installed=0;
@@ -11,6 +11,12 @@ $plot_path ="";
 $parallel=0;
 $make_daemon=0;
 $plot_version="";
+
+open(READDATA, "<version.txt") or die;
+$version=<READDATA>;
+$version =~ s/\n//;
+close(READDATA);
+$version = "POInT_version=" . $version;
 
 if(glob("/usr/lib/x86_64-linux-gnu/libcgicc*")) {
     $cgi_installed=1;
@@ -211,7 +217,6 @@ if($lapack_installed == 0) {
     print WRITEMAKE "CC = $cc\n";
     print WRITEMAKE "SHELL = /bin/sh\n";
     print WRITEMAKE "CFLAGS = -O\n";
-
     print WRITEMAKE "# compile, then strip unnecessary symbols\n.c.o:\n";
     print WRITEMAKE "\t\$(CC) -c -DSkip_f2c_Undefs \$(CFLAGS) \$*.c\n";
     print WRITEMAKE "\tld -r -x -o \$*.xxx \$*.o\n\tmv \$*.xxx \$*.o\n";
@@ -370,36 +375,36 @@ else {print WRITEMAKE "-L.\\\n-L$plot_path\n";}
 if($lapack_installed == 0) {
     if ($parallel == 0) {
         if ($plot_path eq "") {
-            print WRITEMAKE "CFLAGS = -g -D___LOCAL_BLAS___  -I./\n";
+            print WRITEMAKE "CFLAGS = -g -D___LOCAL_BLAS___ -D$version  -I./\n";
         }
         else {
-            print WRITEMAKE "CFLAGS = -g -D_DO_PLOT_ -D___LOCAL_BLAS___  -I./\n";
+            print WRITEMAKE "CFLAGS = -g -D_DO_PLOT_ -D___LOCAL_BLAS___  -D$version -I./\n";
         }
     }
     else {
         if ($plot_path eq "") {
-            print WRITEMAKE "CFLAGS = -DGCC_COMPILE -D_OPEN_MP_VERSION_ -fopenmp -D___LOCAL_BLAS___\n"
+            print WRITEMAKE "CFLAGS = -DGCC_COMPILE -D_OPEN_MP_VERSION_ -fopenmp -D$version -D___LOCAL_BLAS___\n"
         }
         else {
-            print WRITEMAKE "CFLAGS =-D_DO_PLOT_ -DGCC_COMPILE -D_OPEN_MP_VERSION_ -fopenmp -D___LOCAL_BLAS___ -I.\n"
+            print WRITEMAKE "CFLAGS =-D_DO_PLOT_ -DGCC_COMPILE -D_OPEN_MP_VERSION_ -fopenmp -D$version -D___LOCAL_BLAS___ -I.\n"
         }
     }
 }
 else {
     if ($parallel == 0) {
         if ($plot_path eq "") {
-            print WRITEMAKE "CFLAGS = -g   -I./\n";
+            print WRITEMAKE "CFLAGS = -g  -D$version  -I./\n";
         }
         else {
-            print WRITEMAKE "CFLAGS = -g -D_DO_PLOT_   -I./\n";
+            print WRITEMAKE "CFLAGS = -g -D_DO_PLOT_ -D$version   -I./\n";
         }
     }
     else {
         if ($plot_path eq "") {
-            print WRITEMAKE "CFLAGS = -DGCC_COMPILE -D_OPEN_MP_VERSION_ -fopenmp \n"
+            print WRITEMAKE "CFLAGS = -DGCC_COMPILE -D_OPEN_MP_VERSION_  -D$version -fopenmp \n"
         }
         else {
-            print WRITEMAKE "CFLAGS =-D_DO_PLOT_ -DGCC_COMPILE -D_OPEN_MP_VERSION_ -fopenmp  -I.\n"
+            print WRITEMAKE "CFLAGS =-D_DO_PLOT_ -DGCC_COMPILE -D_OPEN_MP_VERSION_ -fopenmp  -D$version -I.\n"
         }
     }
 }

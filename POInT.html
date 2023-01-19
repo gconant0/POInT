@@ -2,20 +2,51 @@
 <html>
 <head>
     <meta name="Author" content="Gavin Conant">
-  <title>POInT (alpha) Documentation</title>
+  <title>POInT 1.6 Documentation</title>
 </head>
 <body>
 <center>
-    <h3>POInT (Polyploidy Orthology Inference Tool; alpha) Documentation
+    <h3>POInT (Polyploidy Orthology Inference Tool) Documentation
 <hr width="100%"></h3>
 </center>
 
-<h4>Revision History:</h4>
-28-07-2020: New version of POInT correcting an error in the computation of transition probabilities for octoploidies.  Analyses of octoploidies with the prior version will be incorrect.
+<h2>Table of contents</h2>
+<ul>
+    <li><a href="#revision_ref">Revision History</a></li>
+    <li><a href="#download_ref">Obtaining POInT</a></li>
+    <li><a href="#install_ref">Installing POInT</a></li>
+    <li><a href="#depend_ref">POInT dependancies</a></li>
+    <li><a href="#cite_ref">Citing POInT</a></li>
+    <li><a href="#run_ref">Running POInT</a></li>
+    <li><a href="#example_ref">An example POInT analysis</a></li>
+    <li><a href="#options_ref">POInT command line options</a></li>
+    <li><a href="#help_ref">The POInT helper programs</a></li>
+    <li><a href="#browser_ref">POInT<sub>browse</sub></a></li>
+</ul>
 <br>
 <br>
 
-<h3>Downloading POInT</h3>
+<h2 id ="revision_ref">Revision History:</h2>
+<table border="0" width="80%" nosave="">
+    <tbody>
+        <tr nosave="">
+            <td><b>Date</b></td><td><b>Version#</b></td><td><b>Changes</b></td></tr>
+<tr>
+<td>7/3/2020</td> <td>1.5</td> <td>Adds pre-processing programs and the POInT simulation package.</td></tr>
+<tr>
+    <td>8/20/2021</td> <td>1.51</td> <td>Adds a new post-processing script for finding optimal orthology assignments, as well as new features for producing gene trees for all pillars as well as for estimating confidence in branch length values.</td></tr>
+<tr>
+<td>9/15/2021</td> <td>1.52</td> <td>Updates to the command line arguments for computing branch length confidence estimates</td></tr>
+<tr>
+<td>11/19/2021</td> <td>1.53</td> <td>Minor bug fixes</td></tr>
+<td>3/24/2022</td> <td>1.54</td> <td>Updates to the documentation and inclusion of code to generate the POInT_browse and POInT_download CGI applications.</td></tr>
+<td>3/24/2022</td> <td>1.55> <td>Identical to 1.54 except in the structure of the GitHub repository</td></tr>
+<td>1/19/2023</td> <td>1.6</td> <td>Incorporates version listing into POInT in command line help and output files.</td></tr>
+</table>
+<br>
+<br>
+
+<h2 id ="download_ref">Obtaining POInT</h2>
 The current release of POInT is avaliable from:
 <ul>
     <li><a href="http://conantlab.org/POInT/POInT.tar">Our website</a></li>
@@ -23,29 +54,37 @@ The current release of POInT is avaliable from:
 <br>
 <br>
 
-<h3>
-Installation:</h3>
+<h2 id = "install_ref">POInT Installation</h2>
 &nbsp;&nbsp;&nbsp; See the <a href="http://conantlab.org/POInT/INSTALL">INSTALL</a>
 file included with POInT for installation instructions.  Note that use of the parallel OpenMP version is highly recommended for large datasets.
 <br>
 <br>
 
-<h3>
-    Dependancies:</h3>
+<h2>
+    Dependancies:</h2>
 POInT uses the <a href="http://www.netlib.org/lapack/">lapack</a> numerical linear algebra routines to compute transition probability matrices. The POInT distribution includes a copy of the necessary routines and the f2c package that links them to c and c++ executables. However, the configure.pl script will first search your system for installed copies of these libraries and use them in preference to the included copies if they exist.  See the INSTALL document for details.
 <br>
 <br>
 The illustration capabilities of POInT depend on the <a href="https://www.gnu.org/software/plotutils/">GNU plotutils</a> package. If you want to compile POInT with this capability, first install plotutils and use ./configure.pl -p:[PATH TO libplot] when configuring POInT compilation.
     <br><br>
+The simulation and data assembly programs use random number generation, provided by the <a href="https://people.sc.fsu.edu/~jburkardt/c_src/ranlib/ranlib.html">ranlib</a> library.
+    <br>
+    <br>
+POInT_merge.pl requires the BioPerl GFF library (Bio::Tools::GFF).
+    <br>
+    <br>
+    The CGI programs for the POInT browser also require the <a href="https://www.boost.org">boost</a> and <a href="https://www.gnu.org/software/cgicc/index.html">cgicc</a> libraries.
+
+    <br>
+    <br>
 
 
-<h3>Citing POInT:</h3>
-<p style="padding-left: 36pt; text-indent: -36pt"><b> Conant, G. C.</b> and K. H. Wolfe. (2008) Probabilistic cross-species inference of orthologous genomic regions created by whole-genome duplication in yeast, <i> Genetics</i> <b>179</b>: 1681-1692.</p>
-<p style="padding-left: 36pt; text-indent: -36pt">Emery, M., M. M. S. Willis, Y. Hao, K. Barry, K. Oakgrove, Y. Peng, J. Schmutz, E. Lyons, J. C. Pires, P. P. Edger, and <b>G. C. Conant</b>. 2018. Preferential retention of genes from one parental genome after polyploidy illustrates the nature and scope of the genomic conflicts induced by hybridization. <i>PLoS Genetics</i> <b>14</b>: e1007267.</p>
+<h2 id = "cite_ref">Citing POInT</h2>
+<p style="padding-left: 36pt; text-indent: -36pt">Conant, G. C. and K. H. Wolfe. (2008) Probabilistic cross-species inference of orthologous genomic regions created by whole-genome duplication in yeast, <i> Genetics</i> <b>179</b>: 1681-1692.</p>
+<p style="padding-left: 36pt; text-indent: -36pt">Emery, M., M. M. S. Willis, Y. Hao, K. Barry, K. Oakgrove, Y. Peng, J. Schmutz, E. Lyons, J. C. Pires, P. P. Edger, and G. C. Conant. 2018. Preferential retention of genes from one parental genome after polyploidy illustrates the nature and scope of the genomic conflicts induced by hybridization. <i>PLoS Genetics</i> <b>14</b>: e1007267.</p>
 <br>
 <br>
-<h3>
-Running POInT:</h3>
+<h2 id = "run_ref">Running POInT:</h2>
 A basic POInT run requires a minimum of three types of files and a specification of the polyploidy type:
 <ul>
     <li>-d:<#> , where #=2 for WGD, =3 for a WGT and =4 for an octaploidy (very very slow)</li>
@@ -57,8 +96,7 @@ A basic POInT run requires a minimum of three types of files and a specification
 Additionally, it is very useful to specify an assumed phylogenetic topology: if no tree file is given, POInT will try to search all possible topologies, which will be intractable for datasets larger than 5 or 6 genomes.
 
 
-<h3>
-    An example POInT analysis</h3>
+<h3 id = "example_ref">An example POInT analysis</h3>
 
 Our website hosts <a href="http://conantlab.org/data/POInT_datasets">examples</a> for each type of file.  For instance, one possible run can be done with:
 
@@ -78,9 +116,8 @@ Our website hosts <a href="http://conantlab.org/data/POInT_datasets">examples</a
 
 This command will perform a global search for the optimal topology among these 4 genomes and save that topology as searchWGXexhaust_Grass_rho_OptOrder.txt0.tre.
 
-<h3>POInT options are:</h3>
-<br>
-&nbsp;
+<h2  id = "options_ref">POInT options are:</h2>
+
 <table border="1" width="100%" nosave="">
   <tbody>
     <tr nosave="">
@@ -106,7 +143,7 @@ This command will perform a global search for the optimal topology among these 4
     <tr>
         <td>-g:</td>
       <td>Extant genome file</td>
-      <td><-g:Brachypodium_distachyon_POInT_geneorders.txt</td>
+      <td>-g:Brachypodium_distachyon_POInT_geneorders.txt</td>
       <td>None/<b>Required</b></td>
     </tr>
     
@@ -138,43 +175,482 @@ This command will perform a global search for the optimal topology among these 4
         <td>-p:</td>
       <td>File to save orthology predictions/posterior probabilities to</td>
       <td>-p:Grass_rho_OptTopo_WGD_bias_fix_post_probs.txt</td>
-      <td><None/<i>Optional</i></td>
+      <td>None/<i>Optional</i></td>
     </tr>
     <tr>
         <td>-c:</td>
         <td>File to save model state conditional probabilities to</td>
-        <td>-p:Grass_rho_OptTopo_WGD_bias_fix_cond_probs.txt</td>
-        <td><None/<i>Optional</i></td>
+        <td>-c:Grass_rho_OptTopo_WGD_bias_fix_cond_probs.txt</td>
+        <td>None/<i>Optional</i></td>
     </tr>
     <tr>
       <td>-noopt</td>
-      <td>Do not perform likelihood optimization</td>
+      <td>Do not perform likelihood optimization--will use parameter estimates from the model file and branch lengths from the tree file without numerical likelihood maximization. Useful for computing posterior probabilites, diagrams etc from previously optimized trees and models.</td>
       <td>-noopt</td>
-      <td><None/<i>Optional</i></td>
+      <td>None/<i>Optional</i></td>
     </tr>
     <tr>
         <td>-i:#</td>
         <td>Draw tracking diagrams with # pillars per diagram (requires installation with Gnu PlotUtils, see INSTALL)</td>
       <td>-i:50</td>
-      <td><None/<i>Optional</i></td>
+      <td>None/<i>Optional</i></td>
     </tr>
     <tr>
       <td>-zerolengthfixed</td>
       <td>Treat all zero length branches in the phylogeny as fixed at length=0</td>
       <td>-zerolengthfixed</td>
-      <td><None/<i>Optional</i></td>
+      <td>None/<i>Optional</i></td>
     </tr>
     <tr>
         <td>-x:#</td>
       <td>Number of topologies to save from exhaustive tree searching (ignored if a topology is given)</td>
-      <td>-s:2</td>
+      <td>-x:2</td>
       <td>-s:1/<i>Optional</i></td>
+    </tr>
+    <tr>
+        <td>-s:#:#</td>
+        <td>Starting and ending tree for exhaustive tree search. The exhaustive tree searcher will only search topologies in this range--allows for starting multiple exhaustive searchers covering different topologies in parallel.</td>
+        <td>-s:2:5</td>
+        <td>None/<i>Optional</i></td>
+    </tr>
+    <tr>
+        <td>-estBrnCI</td>
+        <td>Numerically compute the second derivative of the likelihood with respect to each branch length to estimate standard errors for those lengths</td>
+        <td>-estBrnCI</td>
+        <td>None/<i>Optional</i></td>
+    </tr>
+    <tr>
+        <td>-H</td>
+        <td>Will save all possible optimal gene trees to the current directory (e.g., using POInT's orthology inferences to generate gene trees)</td>
+        <td>-H</td>
+        <td>None/<i>Optional</i></td>
+    </tr>
+    <tr>
+        <td>-h</td>
+        <td>Will save gene trees only for single copy genes to the current directory (e.g., using POInT's orthology inferences to generate gene trees)</td>
+        <td>-h</td>
+        <td>None/<i>Optional</i></td>
+    </tr>
+    
+    <tr>
+        <td>-q</td>
+        <td>Will save all genes in all genomes with bi-directional syntenic neighbors to the provided file</td>
+        <td>-q:AtAlpha_Genes_DoubleSyn.txt</td>
+        <td>None/<i>Optional</i></td>
     </tr>
     
   </tbody>
 </table>
 
-<h3>Notes and Tips:</h3>
+<br>
+&nbsp;
+<br>
+&nbsp;
+<h2 id ="helper_ref">Running the POInT helper programs</h2>
+
+<h3>POInT_genome_scaffold</h3>
+POInT_genome_scaffold compares homologs from a polyploid genome and a non-polyploid relative and places the polyploid homologs into blocks of NCS (N-fold conserved synteny). This is the first step to inferring the synteny data for a POInT analysis. A specification of the polyploidy type and three types of file are required:
+<ul>
+    <li>-d:<#> , where #=2 for WGD, =3 for a WGT and =4 for an octaploidy</li>
+    <li>Order of the genes in the polyploid and outgroup genomes</li>
+    <li>Potential tandem duplicates in each genome</li>
+    <li>A list of homologous genes between the genomes with divergence values</li>
+</ul>
+
+<h4>An example POInT_genome_scaffold analysis</h4>
+
+Our website hosts <a href="http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/">examples</a> for each type of file.  For instance, one possible run can be done with:
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/Oropetium_thomaeum_geneorder.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/Oropetium_thomaeum_tandems.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/Ananas_comosus_to_Oropetium_thomaeum_geneorder.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/Ananas_comosus_to_Oropetium_thomaeum_tandems.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/Ananas_comosus_Oropetium_thomaeum_homolog_pairs.txt</pre>
+
+<pre>%POInT_genome_scaffold -d:2 -g:Oropetium_thomaeum_geneorder.txt -a:Ananas_comosus_to_Oropetium_thomaeum_geneorder.txt -t:Ananas_comosus_to_Oropetium_thomaeum_tandems.txt -u:Oropetium_thomaeum_tandems.txt -h:Ananas_comosus_Oropetium_thomaeum_homolog_pairs.txt -c:0.5 -r:3 -o:OThom_WGD_est_r20.txt</pre>
+
+<h4>POInT_genome_scaffold options are:</h4>
+
+<table border="1" width="100%" nosave="">
+    <tbody>
+        <tr nosave="">
+            <td>
+                <h4>Option</h4>
+                &nbsp;</td>
+            <td nosave="">
+                <h4>Description</h4>
+            </td>
+            <td>
+                <h4>Example</h4>
+            </td>
+            <td>
+                <h4>Default</h4>
+            </td>
+        </tr>
+        <tr>
+            <td>-d:</td>
+            <td>Duplication/Polyploidy level</td>
+            <td>-d:2</td>
+            <td>2/<i>Optional</i></td>
+        </tr>
+        <tr>
+            <td>-g:</td>
+            <td>Polyploid genome gene order file</td>
+            <td>-g:Oropetium_thomaeum_geneorder.txt </td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr><td>-a:</td>
+        <td>Non-polyploid genome gene order file</td>
+        <td>-a:Ananas_comosus_to_Oropetium_thomaeum_geneorder.txt</td>
+        <td>None/<b>Required</b></td>
+        </tr>
+        <tr><td>-t:</td>
+        <td>Non-polyploid genome potential tandems file</td>
+        <td>-t:Ananas_comosus_to_Oropetium_thomaeum_tandems.txt</td>
+        <td>None/<b>Required</b></td>
+        </tr>
+        <tr><td>-u:</td>
+        <td>Polyploid genome potential tandems file</td>
+        <td>-u:Oropetium_thomaeum_tandems.txt</td>
+        <td>None/<b>Required</b></td>
+        </tr>
+        <tr><td>-h:</td>
+            <td>File with homologous genes from the polyploid genome for each non-polyploid genome gene</td>
+            <td>-h:Ananas_comosus_Oropetium_thomaeum_homolog_pairs.txt</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr><td>-c:</td>
+            <td>Maximum divergence between homolog pairs</td>
+            <td>-c:0.5</td>
+            <td>0.5/<i>Optional</i></td>
+        </tr>
+        <tr><td>-r:</td>
+            <td>Relaxation time (controls running time: larger values=longer runs)</td>
+            <td>-r:20</td>
+            <td>200/<i>Optional</i></td>
+        </tr>
+        <tr><td>-b:</td>
+            <td>Boltzmann constant (controls degree of imperfect moves tolerated: larger values give slower convergence)</td>
+            <td>-b:0.0001</td>
+            <td>0.002/<i>Optional</i></td>
+        </tr>
+        <tr><td>-o:</td>
+            <td>Output file</td>
+            <td>-o:OThom_WGD_est_r20.txt</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+    </tbody>
+</table>
+<br>
+&nbsp;
+
+<h3>POInT_ances_order</h3>
+POInT_ances_order takes a set of genomes and their included gene orders, as well as a set of "pillars," namely NCS blocks merged across those genomes, and seeks a new order of those pillars with fewer synteny breaks. A specification of the polyploidy type and two types of file are required:
+<ul>
+    <li>-d:<#> , where #=2 for WGD, =3 for a WGT and =4 for an octaploidy</li>
+    <li>Order of the genes in each polyploid genome: only genes in the pillar file should be included</li>
+    <li>A "pillar" file of syntenic genes created by polyploidy in each genome</li>
+</ul>
+
+<h4>
+    An example POInT_ances_order analysis</h4>
+
+
+Our website hosts <a href="http://conantlab.org/data/POInT_datasets">examples</a> for each type of file.  For instance, one possible run can be done with:
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Brachypodium_distachyon_POInT_geneorders.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Oropetium_thomaeum_POInT_geneorders.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Setaria_italica_POInT_geneorders.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Sorghum_bicolor_POInT_geneorders.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Grass_rho_OptOrder.txt</pre>
+
+<pre>% POInT_ances_order -d:2 -g:Brachypodium_distachyon_POInT_geneorders.txt -g:Oropetium_thomaeum_POInT_geneorders.txt -g:Setaria_italica_POInT_geneorders.txt -g:Sorghum_bicolor_POInT_geneorders.txt -o:Grass_rho_OptOrder.txt -n:Grass_rho_Opt2.txt -m:1 -r:50</pre>
+
+<h4>POInT_ances_order options are:</h4>
+<table border="1" width="100%" nosave="">
+    <tbody>
+        <tr nosave="">
+            <td>
+                <h4>Option</h4>
+                &nbsp;</td>
+            <td nosave="">
+                <h4>Description</h4>
+            </td>
+            <td>
+                <h4>Example</h4>
+            </td>
+            <td>
+                <h4>Default</h4>
+            </td>
+        </tr>
+        <tr>
+            <td>-d:</td>
+            <td>Duplication/Polyploidy level</td>
+            <td>-d:2</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr>
+            <td>-g:</td>
+            <td>Extant genome file</td>
+            <td><-g:Brachypodium_distachyon_POInT_geneorders.txt</td>
+                <td>None/<b>Required</b></td>
+                </tr>
+        
+        <tr>
+            <td>-o:</td>
+            <td>"Pillar" file of N-fold-conserved synteny blocks in ancestral order</td>
+            <td>-o:Grass_rho_OptOrder.txt</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr><td>-n:</td>
+            <td><b>New</b> "Pillar" file</td>
+            <td>-n:Grass_rho_Opt2.txt</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr><td>-r:</td>
+            <td>Relaxation time (controls running time: larger values=longer runs)</td>
+            <td>-r:20</td>
+            <td>200/<i>Optional</i></td>
+        </tr>
+        <tr><td>-b:</td>
+            <td>Boltzmann constant (controls degree of imperfect moves tolerated: larger values give slower convergence)</td>
+            <td>-b:0.0001</td>
+            <td>0.005/<i>Optional</i></td>
+        </tr>
+        <tr><td>-m:</td>
+            <td>Maximum breaks for a fixed block. The program will not attempt to reorder blocks of pillars with <i>m</i> or fewer synteny breaks. Allows the user to control the order search: larger <i>m</i> gives a "coarser" optimization that may give a faster convergence to a globally optimal order, with later runs refining this order. </td>
+            <td>-m:0</td>
+            <td>0/<i>Optional</i></td>
+        </tr>
+        <tr><td>-infer_init_order</td>
+            <td>Uses an initial greedy search to pick a good starting search order. Generally only useful for the initial run of the program </td>
+            <td>-infer_init_order</td>
+            <td>None/<i>Optional</i></td>
+        </tr>
+        <tr><td>-usepositionscore</td>
+            <td>Minimizes the number of full synteny breaks across the full set of genomes rather than the total number of breaks </td>
+            <td>-usepositionscore</td>
+            <td>None/<i>Optional</i></td>
+        </tr>
+    </tbody>
+</table>
+<br>
+&nbsp;
+
+<h3>POInT_simulate</h3>
+POInT_simulate simulates a new polyploidy using an existing set of genomes, pillars, phylogeny and set of model parameters. It useful for problems such as testing whether the length of a branch in the POInT inferred topologies is significantly non-zero. It requires four types of file and a specification of the polyploidy type:
+<ul>
+    <li>-d:<#> , where #=2 for WGD, =3 for a WGT and =4 for an octaploidy (very very slow)</li>
+    <li>Files listing the order of DCS genes in the extant genomes</li>
+    <li>An inferred ancestral order of the DCS blocks</li>
+    <li>A phylogenetic model of post-polyploidy gene loss</li>
+    <li>A assumed phylogeny with associates POInT branch lengths</li>
+</ul>
+
+Note that the simulation will use the values of the model parameters in the model file as the basis of the simulation.
+
+<h4>
+    An example POInT_simulate simulation</h4>
+
+
+Our website hosts <a href="http://conantlab.org/data/POInT_datasets">examples</a> for each type of file.  For instance, one possible run can be done with:
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Brachypodium_distachyon_POInT_geneorders.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Oropetium_thomaeum_POInT_geneorders.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Setaria_italica_POInT_geneorders.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Sorghum_bicolor_POInT_geneorders.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Grass_rho_OptOrder.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Grass_rho/Grass_rho_OptTopo.tre</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/Models/WGD_bias_fix_model.txt</pre>
+
+<pre>% POInT_simulate -g:Brachypodium_distachyon_POInT_geneorders.txt -g:Oropetium_thomaeum_POInT_geneorders.txt -g:Setaria_italica_POInT_geneorders.txt -g:Sorghum_bicolor_POInT_geneorders.txt -o:Grass_rho_OptOrder.txt -m:WGD_bias_fix_model.txt -t:Grass_rho_OptTopo.tre -x:Sim_Genomes -w:SimPillarfile.txt</pre>
+
+<h4>POInT_simulate options are:</h4>
+
+<table border="1" width="100%" nosave="">
+    <tbody>
+        <tr nosave="">
+            <td>
+                <h4>Option</h4>
+                &nbsp;</td>
+            <td nosave="">
+                <h4>Description</h4>
+            </td>
+            <td>
+                <h4>Example</h4>
+            </td>
+            <td>
+                <h4>Default</h4>
+            </td>
+        </tr>
+        <tr>
+            <td>-d:</td>
+            <td>Duplication/Polyploidy level</td>
+            <td>-d:2</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr>
+            <td>-g:</td>
+            <td>Extant genome file</td>
+            <td><-g:Brachypodium_distachyon_POInT_geneorders.txt</td>
+                <td>None/<b>Required</b></td>
+                </tr>
+        
+        <tr>
+            <td>-o:</td>
+            <td>File of double-conserved synteny blocks in ancestral order</td>
+            <td>-o:Grass_rho_OptOrder.txt</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr>
+            <td>-m:</td>
+            <td>Model file</td>
+            <td>-m:WGD_bias_fix_model.txt</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr>
+            <td>-t:</td>
+            <td>Assumed phylogenetic topology, Nexis format</td>
+            <td>-t:Grass_rho_OptTopo.tre</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr>
+            <td>-x:</td>
+            <td>Prefix name for the simulated genomes, which will be numerically named in order from 0</td>
+            <td>-x:Sim_Genomes</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr>
+            <td>-w:</td>
+            <td>Name for the output simulated pillar file</td>
+            <td>-w:SimPillarfile.txt</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+       
+    </tbody>
+</table>
+<br>
+<br>
+<h3>POInT_merge.pl</h3>
+POInT_merge.pl is a rough perl script that merges the output of the runs of POInT_genome_scaffold from several polyploid genomes into a single pillar file, suitable for optimization with POInT_ances_order. It requires a GFF file describing the gene locations of the genes in the non-polyploid genome used as a reference for all of the POInT_genome_scaffold runs as well as the BioPerl GFF library. Two files are required:
+<ul>
+    <li>A tab-delimited file giving, for each polyploid genome, the name of that genome, the optimal run file from POInT_scaffold_genome and the original genome order file for that genome</li>
+    <li>A GFF file describing the non-polyploid outgroup genome</li>
+  </ul>
+<h4>
+    An example POInT_merge.pl analysis</h4>
+
+Our website hosts <a href="http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/">examples</a> for each type of file.  For instance, one possible run can be done with:
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/Oropetium_thomaeum_geneorder.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/Brachypodium_distachyon_geneorder.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/Setaria_italica_geneorder.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/Sorghum_bicolor_rerun_geneorder.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/AC_BD_WGD_c5_n8_r200_b0001.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/AC_OT_WGD_c6_n8_r200_b0001.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/AC_SB_WGD_c5_n8_b0001_r200.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/AC_SI_WGD_c5_n8_r200_b0001.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/fourspp_out_runs.txt</pre>
+
+<pre>% wget http://conantlab.org/data/POInT_datasets/POInT_genome_scaffold/Ananas_comosus_pineapple_annos1-cds0-id_typename-nu1-upa1-add_chr0.gid25735.gff.html</pre>
+
+<pre>% POInT_merge.pl fourspp_out_runs.txt Ananas_comosus_pineapple_annos1-cds0-id_typename-nu1-upa1-add_chr0.gid25735.gff.html FourSpp_initial_pillars.txt</pre>
+
+<h4>POInT_merge.pl options are:</h4>
+
+<table border="1" width="100%" nosave="">
+    <tbody>
+        <tr nosave="">
+            <td>
+                <h4>Option</h4>
+                &nbsp;</td>
+            <td nosave="">
+                <h4>Description</h4>
+            </td>
+            <td>
+                <h4>Example</h4>
+            </td>
+            <td>
+                <h4>Default</h4>
+            </td>
+        </tr>
+        <tr>
+            <td>First argument</td>
+            <td>File of genome names, optimal scaffolds, and orders</td>
+            <td>fourspp_out_runs.txt</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr>
+            <td>Second argument</td>
+            <td>GFF file for the non-polyploid outgroup</td>
+            <td>Ananas_comosus_pineapple_annos1-cds0-id_typename-nu1-upa1-add_chr0.gid25735.gff.html</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr>
+            <td>Third argument</td>
+            <td>Output pillar file</td>
+            <td>FourSpp_initial_pillars.txt</td>
+            <td>None/<b>Required</b></td>
+        </tr>
+        <tr>
+        <tr>
+            <td>-d:</td>
+            <td>Duplication/Polyploidy level</td>
+            <td>-d:2</td>
+            <td>2/<i>Optional</i></td>
+        </tr>
+        <tr>
+            <td>-s:</td>
+            <td>Number of non-syntenic homologs to tolerate in a pillar. (Allows up to <i>s</s> genes to be homeologs with no synteny. Depreciated)</td>
+            <td>-s:2</td>
+            <td>0/<i>Optional</i></td>
+        </tr>
+        <tr>
+            </tbody>
+</table>
+<br>
+<br>
+<h3>POInT_extract_orthos.pl.pl</h3>
+POInT_extract_orthos.pl extracts the mostly likely set of orthology relationships for each pillar in a POInT analysis. The "-p" option in POInT produces a posterior probability file, which gives the probability of all possible orthology relationships, and this script parses these probabilities to find that with the largest probability. The associated orthology assignments are printed to a new output file, which gives the pillar number, the probability of the orthology assignments given (out of all possible assignments) and the genes assigned to each subgenome (which are in turn defined by the POInT model used). In the case of genome triplications or quadruplications, there is degeneracy possible whenever two or more copies at a pillar have been lost from a single genome (because presumably we don't care which subgenome the "holes" in the orthology are assigned to). This degeneracy is accounted for by the script. Two arguments are required:
+<ul>
+    <li>A posterior probability file from POInT as input</li>
+    <li>The name of a new orthology file to be produced</li>
+</ul>
+<h4>
+    An example POInT_extract_orthos.pl analysis</h4>
+
+<pre>% wget http://conantlab.org/data/TGD/WGDfix_bias_nbcon_CL_T4_PreDBS8Opt1_postprobs.txt</pre>
+<pre>% POInT_extract_orthos.pl WGDfix_bias_nbcon_CL_T4_PreDBS8Opt1_postprobs.txt TGD_bestorthos.txt </pre>
+
+<br>
+<br>
+<h2  id = "browser_ref">The POInT<sub>browser</sub></h2>
+A browsable interface to all of the published POInT datasets is online at <a href="http://wgd.statgen.ncsu.edu">wgd.statgen.ncsu.edu</a>. Batch downloads of CDS regions and gene trees, as well as visualization of syntenic regions for 11 polyploidy events is supported. Full POInT datasets are also avalaible for download from the browser.
+
+
+<h2>Notes and Tips:</h2>
 <br>
 Coming soon.
 </body>

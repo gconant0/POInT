@@ -89,7 +89,7 @@ class Molecule_Sequence
   void Assign_name(const char *assigned_name)   {strcpy(name, assigned_name);};
   DATATYPE get_datatype()		{return(type);};
  
-  virtual ~Molecule_Sequence () {delete[] sequence;};
+  virtual ~Molecule_Sequence () {if (sequence !=0) delete[] sequence;};
 
  protected:
   int size, *sequence;

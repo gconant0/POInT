@@ -14,6 +14,8 @@ using namespace::std;
 Molecule_Sequence::Molecule_Sequence ()
 {
   cerr<<"Call to default constructor of Molecule_Sequnce class\n";
+    sequence=0;
+    size=0;
 }
 
 
@@ -108,6 +110,8 @@ BOOL Molecule_Sequence::compare_elements(int element, Molecule_Sequence * other_
 Sequence_dataset::Sequence_dataset()
 {
   cerr<<"Call to default constructor of Sequence_dataset class\n";
+    dummy=0;
+    actual_sequences=0;
 }
 
 
