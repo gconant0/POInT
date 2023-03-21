@@ -2,7 +2,7 @@
 Source code for the Polyploidy Orthology Inference Tool<br>
 
 [INSTALL](https://github.com/gconant0/POInT/blob/master/INSTALL.md) in the POInT directory gives installation instructions.<br>
-HTML documentation (POInT.html) is also included.
+HTML documentation (POInT.html) is also included. Help on the POInT browser is avaliable at http://wgd.statgen.ncsu.edu/help.html
 
 
 # Reference
