@@ -11,6 +11,9 @@ Gene::Gene()
     neighbors[1]=0;
 	num_neighbors=0;
 	keep=TRUE;
+    start_pos=-1;
+    end_pos=-1;
+    chrom_string="NONE";
 }
 
 
@@ -24,6 +27,9 @@ Gene::Gene(int num, char *new_name)
     neighbors[1]=0;
 	keep = TRUE;
     num_neighbors=0;
+    start_pos=-1;
+    end_pos=-1;
+    chrom_string="NONE";
 }
 
 Gene::Gene(int num,  string new_name)
@@ -35,6 +41,9 @@ Gene::Gene(int num,  string new_name)
     neighbors[1]=0;
     keep = TRUE;
     num_neighbors=0;
+    start_pos=-1;
+    end_pos=-1;
+    chrom_string="NONE";
 }
 
 
@@ -69,6 +78,18 @@ void Gene::set_neighbor(Gene * new_neighbor, int index)
     }
 }
 	
+void Gene::set_location(string ch_string, int s, int e)
+{
+    chrom_string=ch_string;
+    start_pos=abs(s);
+    end_pos=abs(e);
+    if (start_pos>end_pos) {
+        end_pos=abs(s);
+        start_pos=abs(e);
+    }
+    
+}
+
 Gene::~Gene()
 {
 	delete[] neighbors;
@@ -231,7 +252,7 @@ Genome::Genome()
 {
     string *empty=0;
     
-   
+    web_link="NONE";
 	num_contigs=0;
 	the_contigs=0;
 	
@@ -246,7 +267,7 @@ Genome::Genome(int ncontigs, char *name, List_Contig *start_contigs)
 	int i;
     string *empty=0;
     
-
+    web_link="NONE";
 	num_contigs=ncontigs;
 	genome_name=name;
 
@@ -270,7 +291,7 @@ Genome::Genome(int ncontigs, string name, List_Contig *start_contigs)
     int i;
     string *empty=0;
     
-    
+    web_link="NONE";
     num_contigs=ncontigs;
     genome_name=name;
     
@@ -321,7 +342,8 @@ Genome& Genome::operator= (Genome &assign_from)
 	}
 
 	genome_name=assign_from.get_name_string();
-
+    web_link=assign_from.get_web_link();
+    
 	for(i=0; i<num_contigs; i++)
 		(*the_contigs[i])=assign_from[i];
 

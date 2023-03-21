@@ -20,17 +20,18 @@
 
 #define BUFFER_SIZE 2048
 #define MAX_FRAME 150;
+#define NUM_FIELDS 5
 
 using namespace::std;
 
-enum MSG_TYPE {MESSAGE, DATABLOCK, SIZE, PING, ENDCOMM, PHYLOTREE, BATCHBLOCK, MODELDIAG, TREEDIAG, GENOMELIST};
+enum MSG_TYPE {MESSAGE, DATABLOCK, SIZE, PING, ENDCOMM, PHYLOTREE, BATCHBLOCK, MODELDIAG, TREEDIAG, GENOMELIST, INFOBLOCK};
 enum IMAGE_SIZE {SMALL, MEDIUM, BIGGER, LARGE, MASSIVE};
 
 extern int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, int start, int num_per_page, int focus, string gene_name, string filename, BOOL bitmap, BOOL IPC_call, BOOL rescale, std::stringstream *plot_ss, IMAGE_SIZE mysize, int *coords, int arrow_loc, BOOL arrow_left, int arrow_taxa, string tracked_name, string outname, string *prefix_map);
 
 extern string make_gene_tree(Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_matrix, TREE_TYPE my_type, WGX_Data *the_homologs, Ploidy_Like_model *the_model,  Clade *the_genomes, int pillar_num);
 
-extern void construct_full_genome_lookup(string genomefile, Clade *the_genomes, std::map<std::string, int> gene_hash, std::map<std::string, int> &left_matches, std::map<std::string, int> &right_matches, std::map<std::string, int> &taxa_lookup, std::map<std::string, std::string> &left_name, std::map<std::string, std::string> &right_name, std::map<std::string, std::string> &aliases);
+extern void construct_full_genome_lookup(string genomefile, Clade *the_genomes, std::map<std::string, int> gene_hash, std::map<std::string, int> &left_matches, std::map<std::string, int> &right_matches, std::map<std::string, int> &taxa_lookup, std::map<std::string, std::string> &left_name, std::map<std::string, std::string> &right_name, std::map<std::string, std::string> &aliases, BOOL have_loc_data);
 
 extern void make_prefixes (Clade *the_genomes, std::string *prefixes, std::string *&prefix_map);
 
@@ -42,7 +43,7 @@ extern int draw_rooted_tree(Exchange *curr_exchange, Tree *the_tree, string plot
 
 MSG_TYPE get_message_type(char *buffer);
 
-int communicate_plots(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, std::string socketname, std::string *&full_genome_files, std::string *&prefixes)
+int communicate_plots(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, std::string socketname, std::string *&full_genome_files, std::string *&prefixes, BOOL have_loc_data)
 {
     
     int i, frame_size, pillar, new_pillar, dupl_level, taxa, start, end, max, sock, msgsock, focus, my_track, gene_cutoff,
@@ -53,13 +54,15 @@ int communicate_plots(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the
     struct sockaddr_un server;
     BOOL size_valid, is_bmp, name_error=FALSE, have_full=FALSE, arrow_left, full_match_no_syn=FALSE, alias_non_unique=FALSE, rescale=FALSE,
         orthologs_only, *use_pillars, all_one, all_zero, get_rand=FALSE;
-    string gene_name, quit, size, filename, number_str, type_string, tree_string,tracked_name, outname, *prefix_map, alias_lc;
+    string gene_name, quit, size, filename, number_str, type_string, tree_string,tracked_name, outname, *prefix_map, alias_lc, alias;
     char buffer[BUFFER_SIZE], send_buffer[BUFFER_SIZE], dummy[1];
     MSG_TYPE my_msg;
     IMAGE_SIZE mysize=LARGE;
+    Gene *my_gene;
+    
     std::map<char, int> subgenome_lookup;
     std::map<std::string, int> gene_hash, full_left_matches, full_right_matches, full_taxa_ids, state_map;
-    std::map<std::string, std::string> left_name, right_name, aliases;
+    std::map<std::string, std::string> left_name, right_name, aliases, reverse_aliases;
     std::fstream fout;
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
@@ -144,7 +147,16 @@ int communicate_plots(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the
         for(taxa=0; taxa<the_genomes->get_num_genomes(); taxa++) {
             if (full_genome_files[taxa] != "NONE") {
                 have_full=TRUE;
-                construct_full_genome_lookup(full_genome_files[taxa], the_genomes, gene_hash, full_left_matches, full_right_matches, full_taxa_ids, left_name, right_name, aliases);
+                construct_full_genome_lookup(full_genome_files[taxa], the_genomes, gene_hash, full_left_matches, full_right_matches, full_taxa_ids, left_name, right_name, aliases, have_loc_data);
+                
+                
+                for (std::map<string,string>::iterator it=aliases.begin(); it!=aliases.end(); ++it){
+                    if (it->second != it->first) {
+                        if(reverse_aliases.find(it->second) == reverse_aliases.end()) {
+                            reverse_aliases[it->second]=it->first;
+                        }
+                    }
+                }
             }
         }
     }
@@ -481,10 +493,15 @@ int communicate_plots(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the
                                     perror("writing on stream socket");
                             }
                             else {
+                                
+                                
                                 std::stringstream plot_ss;
                                 //auto old_buf = std::cout.rdbuf(plot_ss.rdbuf());
                                 draw_region (curr_exchange, the_tree, the_matrix, the_model, the_genomes, the_homologs, start, frame_size, focus, gene_name, filename, is_bmp,TRUE, rescale, &plot_ss, mysize, coords, arrow_loc, arrow_left, arrow_taxa, tracked_name, outname, prefix_map);
 
+                                std::stringstream genedata_ss;
+                                
+                                
                                 data_size=0;
                                 while(!(plot_ss.eof())) {
                                     dummy[0]=(char)plot_ss.get();
@@ -502,7 +519,7 @@ int communicate_plots(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the
                                 
                                 //send_buffer[0]='D';
                                 //strcat(send_buffer, "\t");
-                                sprintf(send_buffer, "S\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", data_size, pillar, start, end, the_homologs->get_num_homologs(),
+                                sprintf(send_buffer, "S\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", data_size, pillar, start, end, the_homologs->get_num_homologs(), the_homologs->get_dupl_level(), the_genomes->get_num_genomes(),
                                         coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6], tree_size);
                                 
                                 cout<<"Sending coords: "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<" "<<coords[3]<<" "<<coords[4]<<" "<<coords[5]<<" "<<coords[6]<<endl;
@@ -541,7 +558,7 @@ int communicate_plots(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the
                                         i++;
                                     }
                                     
-                                    std::cout<<"Sending message of size "<<sizeof(send_buffer)<<std::endl<<std::flush;
+                                    std::cout<<"Sending image message of size "<<sizeof(send_buffer)<<std::endl<<std::flush;
                                     
                                     if (write(msgsock, send_buffer, sizeof(send_buffer)) < 0)
                                         perror("writing on stream socket");
@@ -566,6 +583,91 @@ int communicate_plots(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the
                                             i++;
                                         }
                                         cout<<"Tree msg "<<send_buffer<<endl;
+                                        if (write(msgsock, send_buffer, sizeof(send_buffer)) < 0)
+                                            perror("writing on stream socket");
+                                    }
+                                    
+                                }
+                                
+                                if (have_loc_data ==TRUE) {
+                                    std::stringstream loc_ss;
+                                    for(taxa=0; taxa<the_genomes->get_num_genomes(); taxa++) {
+                                        loc_ss<<(*the_genomes)[taxa].get_name_string()<<"\t"<<(*the_genomes)[taxa].get_web_link()<<"\t";
+                                        cout<<"Sending "<<(*the_genomes)[taxa].get_web_link()<<" for "<<(*the_genomes)[taxa].get_name_string()<<endl;
+                                    }
+                                    
+                                    for(i=0; i<frame_size; i++) {
+                                        get_max_prob_pattern(curr_exchange, the_matrix, the_model, i+start, max_prob_pattern, taxa_track_ids, max_prob);
+                                        for (dupl_level=0; dupl_level<the_homologs->get_dupl_level(); dupl_level++) {
+                                            for(taxa=0; taxa<the_genomes->get_num_genomes(); taxa++) {
+                                                cout<<"Position is "<<i+start<<" d: "<<dupl_level<<" Taxa "<<taxa
+                                                <<" TP: "<<taxa_track_ids[taxa]<<endl<<flush;
+                                                if ((*the_model->the_tracks)[taxa].get_gene_track(i+start, the_model->tracking_permutes[taxa_track_ids[taxa]][dupl_level])->my_locus != 0) {
+                                                    my_gene=(*the_model->the_tracks)[taxa].get_gene_track(i+start, the_model->tracking_permutes[taxa_track_ids[taxa]][dupl_level])->my_locus->get_gene_obj((*the_model->the_tracks)[taxa].get_gene_track(i+start, the_model->tracking_permutes[taxa_track_ids[taxa]][dupl_level])->index_num);
+                                                    cout<<"Looking at "<<my_gene->get_name_string()<<endl;
+                                                    loc_ss<<my_gene->get_name_string()<<"\t";
+                                                    
+                                                    //alias="NONE";
+                                                    //for (std::map<string,string>::iterator it=aliases.begin(); it!=aliases.end(); ++it){
+                                                     //   if (it->second == my_gene->get_name_string()) {
+                                                      //      if (( it->first != it->second ) &&(alias == "NONE")) alias=it->first;
+                                                      //  }
+                                                   // }
+                                                    if(reverse_aliases.find(my_gene->get_name_string()) != reverse_aliases.end()) {
+                                                        alias=reverse_aliases[my_gene->get_name_string()];
+                                                    }
+                                                    else alias="NONE";
+                                                    
+                                                    cout<<"Found alias of "<<alias<<endl;
+                                                    loc_ss<<alias<<"\t";
+                                                    loc_ss<<my_gene->get_chrom_name()<<"\t";
+                                                    loc_ss<<my_gene->get_start_pos()<<"\t";
+                                                    loc_ss<<my_gene->get_end_pos()<<"\t";
+                                                }
+                                                else {
+                                                    loc_ss<<"NONE\tNONE\tNONE\tNONE\tNONE\t";
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                    data_size=0;
+                                    while(!(loc_ss.eof())) {
+                                        dummy[0]=(char)loc_ss.get();
+                                    //while (dummy[0]=(char)plot_ss.get()) {
+                                    //while (plot_ss>>dummy[0]) {
+                                        data_size++;
+                                    }
+                                    data_size--;
+                                    
+                                    loc_ss.clear();
+                                    loc_ss.seekg(0, ios::beg);
+                                    
+                                    while(!(loc_ss.eof())) {
+                                        bzero(send_buffer, sizeof(send_buffer));
+                                        send_buffer[0]='G';
+                                        i=1;
+                                        
+                                        while((i<BUFFER_SIZE) &&(!(loc_ss.eof()))) {
+                                            //send_buffer[i]=(char)plot_ss.get();
+                                            dummy[0]=(char)loc_ss.get();
+                                            if (!(loc_ss.eof()))
+                                                send_buffer[i]=dummy[0];
+                                            //std::cout<<"i ="<<i<<" = "<<send_buffer[i]<<std::endl<<std::flush;
+                                            i++;
+                                        }
+                                        
+                                        std::cout<<"GENE BUF is "<<send_buffer<<endl;
+                                        
+                                        if(i<BUFFER_SIZE) std::cout<<"Final msg i = "<<i<<std::endl<<std::flush;
+                                        
+                                        while(i<BUFFER_SIZE) {
+                                            send_buffer[i]='\0';
+                                            i++;
+                                        }
+                                        
+                                        std::cout<<"Sending message of size "<<sizeof(send_buffer)<<std::endl<<std::flush;
+                                        
                                         if (write(msgsock, send_buffer, sizeof(send_buffer)) < 0)
                                             perror("writing on stream socket");
                                     }

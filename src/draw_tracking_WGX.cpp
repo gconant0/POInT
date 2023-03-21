@@ -22,7 +22,7 @@ enum IMAGE_SIZE {SMALL, MEDIUM, BIGGER, LARGE, MASSIVE};
 //#define num_per_page 50
 void draw_tracking(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, int diag_size);
 
-void generate_frames(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, std::string *&full_genome_files, std::string *&prefixes);
+void generate_frames(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, std::string *&full_genome_files, std::string *&prefixes, BOOL have_loc_data);
 
 int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, int start, int num_per_page, int focus, string focus_name, string filename, BOOL bitmap, BOOL IPC_call, BOOL rescale, std::stringstream *plot_ss, IMAGE_SIZE mysize, int *coords, int arrow_loc, BOOL arrow_left, int arrow_taxa, string tracked_name, string outname, string *prefix_map);
 
@@ -31,7 +31,7 @@ extern void get_max_prob_pattern(Exchange *curr_exchange, Phylo_Matrix *the_matr
 extern string make_gene_tree(Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_matrix, TREE_TYPE my_type, WGX_Data *the_homologs, Ploidy_Like_model *the_model,  Clade *the_genomes, int pillar_num);
 
 
-void construct_full_genome_lookup(string genomefile, Clade *the_genomes, std::map<std::string, int> gene_hash, std::map<std::string, int> &left_matches, std::map<std::string, int> &right_matches, std::map<std::string, int> &taxa_lookup, std::map<std::string, std::string> &left_name, std::map<std::string, std::string> &right_name, std::map<std::string, std::string> &aliases);
+void construct_full_genome_lookup(string genomefile, Clade *the_genomes, std::map<std::string, int> gene_hash, std::map<std::string, int> &left_matches, std::map<std::string, int> &right_matches, std::map<std::string, int> &taxa_lookup, std::map<std::string, std::string> &left_name, std::map<std::string, std::string> &right_name, std::map<std::string, std::string> &aliases, BOOL have_loc_data);
 void make_prefixes (Clade *the_genomes, std::string *prefixes, std::string *&prefix_map);
 void prune_tree (Exchange *&curr_exchange, Tree *&current_tree, string prune_name);
 void rebuild_tree (Branch *curr_old, Branch **lookup_table, Tree *new_tree, int &tips_so_far);
@@ -89,7 +89,7 @@ void draw_tracking(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_ma
 }
 
 
-void generate_frames(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, std::string *&full_genome_files, std::string *&prefixes)
+void generate_frames(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, std::string *&full_genome_files, std::string *&prefixes, BOOL have_loc_data)
 {
     int i,frame_size, pillar, dupl_level, taxa, start, end, max, coords[7], arrow_loc=-1, arrow_taxa, focus;
     BOOL size_valid, is_bmp, get_tree, gene_error, have_full=FALSE, arrow_left, first;
@@ -112,7 +112,7 @@ void generate_frames(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_
         for(taxa=0; taxa<the_genomes->get_num_genomes(); taxa++) {
             if (full_genome_files[taxa] != "NONE") {
                 have_full=TRUE;
-                construct_full_genome_lookup(full_genome_files[taxa], the_genomes, gene_hash, full_left_matches, full_right_matches, full_taxa_ids, left_name, right_name, aliases);
+                construct_full_genome_lookup(full_genome_files[taxa], the_genomes, gene_hash, full_left_matches, full_right_matches, full_taxa_ids, left_name, right_name, aliases, have_loc_data);
             }
         }
     }
@@ -1495,6 +1495,11 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
                     
                     my_offset = (0.5*box_x_foot)/ (double)num_lines;
                     
+                    if (((*the_genomes)[taxa].get_web_link() != "NONE") && (bitmap == TRUE))
+                        pl_pencolorname("blue");
+                    else
+                        pl_pencolorname("black");
+                    
                     for(name_line =0; name_line < num_lines; name_line++) {
                         if (IPC_call==FALSE)
                             cout<<"Adding line "<<name_line<<" of "<<subname<<" ( total= "<<num_lines<<" which is "<<split_name[name_line]<<" x = "<<endl;
@@ -1517,6 +1522,7 @@ int draw_region (Exchange *curr_exchange,  Tree *the_tree, Phylo_Matrix *the_mat
                             
                         }
                         pl_alabel ('c', 'c',split_name[name_line].c_str());
+                        pl_pencolorname("black");
                     }
                     
                     //track_first[the_model->tracking_permutes[taxa_track_ids[j][taxa]][level]] = FALSE;
@@ -1836,13 +1842,13 @@ void make_prefixes (Clade *the_genomes, std::string *prefixes, std::string *&pre
     }
 }
 
-void construct_full_genome_lookup(string genomefile, Clade *the_genomes, std::map<std::string, int> gene_hash, std::map<std::string, int> &left_matches, std::map<std::string, int> &right_matches, std::map<std::string, int> &taxa_lookup, std::map<std::string, std::string> &left_name, std::map<std::string, std::string> &right_name, std::map<std::string, std::string> &aliases)
+void construct_full_genome_lookup(string genomefile, Clade *the_genomes, std::map<std::string, int> gene_hash, std::map<std::string, int> &left_matches, std::map<std::string, int> &right_matches, std::map<std::string, int> &taxa_lookup, std::map<std::string, std::string> &left_name, std::map<std::string, std::string> &right_name, std::map<std::string, std::string> &aliases, BOOL have_loc_data)
 {
-    int i, taxa_num=0, site, chrom_num, chrom, found_site, last_chrom=-1, curr_left, curr_right, taxa;
-    string spp_name, gene_name, line, alias, alias_uc, alias_lc;
+    int i, taxa_num=0, site, chrom_num, chrom, found_site, last_chrom=-1, curr_left, curr_right, taxa, start, end;
+    string spp_name, gene_name, line, alias, alias_uc, alias_lc, chrom_string, link;
     ifstream fin;
     std::map<int, int> chrom_lookup;
-    
+    std::map<string, int> gene_lookup, gene_c_lookup;
    
     
     fin.open(genomefile.c_str());
@@ -1851,14 +1857,40 @@ void construct_full_genome_lookup(string genomefile, Clade *the_genomes, std::ma
         std::cerr<<"Error: Could not open full genome order file "<<genomefile<<std::endl;
         return;
     }
-    fin>>spp_name;
-
+    //fin>>spp_name;
+    std::getline(fin, line);
+    std::stringstream ss2 (line);
+    ss2>>spp_name;
+    
+    link="NONE";
+    
+    if (!ss2.eof()) {
+        ss2>>link;
+    }
+    
+    if (link.length() <10) link="NONE";
+    
+    cout<<"Read "<<spp_name<<" and "<<link<<" from "<<genomefile<<" and "<<line<<endl;
+    
     while (!(spp_name == (*the_genomes)[taxa_num].get_name()) && (taxa_num<the_genomes->get_num_genomes()))
         taxa_num++;
     
     if (taxa_num == the_genomes->get_num_genomes()){
         std::cerr<<"Error: genome  "<<spp_name<<" not found in the genomes"<<std::endl;
         return;
+    }
+    if (link != "NONE")
+        (*the_genomes)[taxa_num].set_web_link(link);
+    
+    cout<<"For "<<(*the_genomes)[taxa_num].get_name_string()<<" LINK IS "<<(*the_genomes)[taxa_num].get_web_link()<<endl;
+    
+    if (have_loc_data ==TRUE) {
+        for(chrom=0; chrom<(*the_genomes)[taxa_num].get_num_contigs(); chrom++ ) {
+            for(site=0; site<(*the_genomes)[taxa_num][chrom].get_num_genes(); site++) {
+                gene_lookup[(*the_genomes)[taxa_num][chrom][site].get_name_string()]=site;
+                gene_c_lookup[(*the_genomes)[taxa_num][chrom][site].get_name_string()]=chrom;
+            }
+        }
     }
     
     while (!(fin.eof())) {
@@ -1867,6 +1899,13 @@ void construct_full_genome_lookup(string genomefile, Clade *the_genomes, std::ma
         std::stringstream ss (line);
         
         ss>>chrom_num>>gene_name;
+        
+        if (have_loc_data==TRUE) {
+            ss>>chrom_string>>start>>end;
+            if(gene_lookup.find(gene_name) != gene_lookup.end()) {
+                (*the_genomes)[taxa_num][gene_c_lookup[gene_name]][gene_lookup[gene_name]].set_location(chrom_string, start, end);
+            }
+        }
         
         aliases[gene_name]=gene_name;
         
@@ -1908,7 +1947,20 @@ void construct_full_genome_lookup(string genomefile, Clade *the_genomes, std::ma
     fin.clear();
     fin.open(genomefile.c_str());
 
-    fin>>spp_name;
+    std::getline(fin, line);
+    std::stringstream ss3 (line);
+    ss3>>spp_name;
+    
+    link="NONE";
+    
+    if (!ss2.eof()) {
+        ss3>>link;
+    }
+    
+    if (link.length() >10) link="NONE";
+    
+    cout<<"Read "<<spp_name<<" and "<<link<<" from "<<genomefile<<" and "<<line<<endl;
+  
 
     while (!(fin.eof())) {
         //fin>>chrom_num>>gene_name;

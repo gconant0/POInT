@@ -21,17 +21,21 @@ public:
 	const char* get_name()							{return(name.c_str());};
     string get_name_string()                    {return(name);};
 	int get_gene_num()							{return(gene_num);};
+    int get_start_pos()                         {return(start_pos);};
+    int get_end_pos()                           {return(end_pos);};
+    string get_chrom_name()                     {return(chrom_string);};
 	Gene * get_neighbor(int index);
 	void set_neighbor(Gene * new_neighbor, int index);
+    void set_location(string ch_string, int s, int e);
 	int get_num_neighbors()						{return(num_neighbors);};
 	BOOL keep_gene()							{return(keep);};
 	void discard_gene()							{keep=FALSE;};
 	~Gene();
 	
 protected:
-	int gene_num, num_neighbors;
+	int gene_num, num_neighbors, start_pos, end_pos;
 	BOOL keep;
-	string name;
+	string name, chrom_string;
 	Gene **neighbors;
 	
 };
@@ -78,11 +82,13 @@ public:
 	int get_num_contigs()						{return(num_contigs);};
 	const char* get_name()							{return(genome_name.c_str());};
     string get_name_string()                    {return(genome_name);};
+    string get_web_link()                       {return(web_link);};
+    void set_web_link(string inlink)               {web_link=inlink;};
     void print_genome(string filename);
 	~Genome();
 protected:
 	int num_contigs;
-	string genome_name;
+	string genome_name, web_link;
 	Contig **the_contigs, *null_contig;
 };
 

@@ -22,13 +22,13 @@
 #endif
 
 #ifndef POInT_version
-#define POInT_version "v1.6"
+#define POInT_version "v1.61"
 #endif
 
 void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes, std::string *&genome_files,
-                std::string &ortho_file, std::string &post_probs_file, std::string &model_file, std::string &root_model_file, string &cond_probs_file, std::string &synteny_file, BOOL &have_treefile, int &start, int & end, int &save_num, int &diag_size, BOOL &no_opt, BOOL &get_blocks, BOOL &do_tracking, double &block_thresh, BOOL &degen, BOOL &find_perfect, BOOL &draw_frame, std::string &socketid, std::string *&full_genome_files, std::string *&prefixes,  BOOL &print_all_trees, BOOL &single_only, BOOL &brn_CI, BOOL &draw_model);
+                std::string &ortho_file, std::string &post_probs_file, std::string &model_file, std::string &root_model_file, string &cond_probs_file, std::string &synteny_file, BOOL &have_treefile, int &start, int & end, int &save_num, int &diag_size, BOOL &no_opt, BOOL &get_blocks, BOOL &do_tracking, double &block_thresh, BOOL &degen, BOOL &find_perfect, BOOL &draw_frame, std::string &socketid, std::string *&full_genome_files, std::string *&prefixes,  BOOL &print_all_trees, BOOL &single_only, BOOL &brn_CI, BOOL &draw_model, BOOL &have_loc_data);
 
-void optimize_single_arrange(Exchange *curr_exchange, Clade *the_genomes, WGX_Data *the_homologs, Phylo_Matrix *the_matrix, Phylo_Matrix *root_matrix, std::string post_probs_file, std::string cond_probs_file, int diag_size, BOOL no_opt, BOOL get_blocks, BOOL do_tracking, BOOL draw_frame, std::string socketid, double block_thresh, BOOL degen, BOOL find_perfect, std::string synteny_file, std::string *&full_genome_files, std::string *&prefixes,BOOL &print_all_trees, BOOL &single_only, BOOL brn_CI, BOOL draw_model);
+void optimize_single_arrange(Exchange *curr_exchange, Clade *the_genomes, WGX_Data *the_homologs, Phylo_Matrix *the_matrix, Phylo_Matrix *root_matrix, std::string post_probs_file, std::string cond_probs_file, int diag_size, BOOL no_opt, BOOL get_blocks, BOOL do_tracking, BOOL draw_frame, std::string socketid, double block_thresh, BOOL degen, BOOL find_perfect, std::string synteny_file, std::string *&full_genome_files, std::string *&prefixes,BOOL &print_all_trees, BOOL &single_only, BOOL brn_CI, BOOL draw_model, BOOL have_loc_data);
 
 #ifdef _DO_PLOT_
 void print_blocks(Exchange *curr_exchange, Clade *the_genomes, WGX_Data *the_homologs, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model, Tree *current_tree, int **&block_ends, int **&track_breaks, double block_thresh, BOOL degen);
@@ -37,12 +37,12 @@ void find_multi_spp_blocks(Exchange *curr_exchange, Clade *the_genomes, WGX_Data
 
 int draw_block_diagram( Clade *the_genomes, WGX_Data *the_homologs,  int **block_ends, int **track_breaks, int block_list_size, int **multi_block_ends, int *num_multi_blocks);
 extern void draw_tracking(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, int diag_size);
-extern void generate_frames(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, std::string *&full_genome_files, std::string *&prefixes);
+extern void generate_frames(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, std::string *&full_genome_files, std::string *&prefixes, BOOL have_loc_data);
 
 extern int draw_model_diag(Phylo_Matrix *the_matrix, string plotfile, BOOL bitmap, BOOL IPC_call, std::stringstream *plot_ss, int matrix_num);
 #endif
 #ifdef POInT_daemon
-extern int communicate_plots(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, std::string socketname, std::string *&full_genome_files, std::string *&prefixes);
+extern int communicate_plots(Exchange *curr_exchange, Tree *the_tree, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model,  Clade *the_genomes, WGX_Data *the_homologs, std::string socketname, std::string *&full_genome_files, std::string *&prefixes, BOOL have_loc_data);
 #endif
 
 
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 	int i, num_genomes, num_homologs, start, end, **block_ends, **track_breaks, save_num, diag_size;
     double block_thresh;
 	std::string *genome_files, ortho_file, post_probs_file, model_file, root_model_file, cond_probs_file, socketid,	  synteny_file, *full_genome_files, *prefixes;
-	BOOL have_treefile, no_opt, get_blocks, do_tracking, degen, find_perfect, draw_frame, print_all_trees, single_only, brn_CI, draw_model;
+	BOOL have_treefile, no_opt, get_blocks, do_tracking, degen, find_perfect, draw_frame, print_all_trees, single_only, brn_CI, draw_model, have_loc_data;
 	Exchange current_exchange;
 	Sequence_dataset *dummy_seqs;
 	Genome **list_of_genomes;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
 	if (argc > 3) {
 		parse_args(argc, argv, &current_exchange, num_genomes, genome_files, ortho_file, post_probs_file, model_file, root_model_file, cond_probs_file, synteny_file,
-			have_treefile, start, end, save_num, diag_size, no_opt, get_blocks, do_tracking, block_thresh, degen, find_perfect, draw_frame, socketid, full_genome_files, prefixes,  print_all_trees, single_only, brn_CI, draw_model);
+			have_treefile, start, end, save_num, diag_size, no_opt, get_blocks, do_tracking, block_thresh, degen, find_perfect, draw_frame, socketid, full_genome_files, prefixes,  print_all_trees, single_only, brn_CI, draw_model, have_loc_data);
         //cout<<"Got arguements"<<flush<<endl;
 
 		list_of_genomes=new Genome * [num_genomes];
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 		
 		
 		if (have_treefile == TRUE)
-			optimize_single_arrange(&current_exchange, the_genomes, the_homologs, curr_model_matrix, root_matrix, post_probs_file, cond_probs_file, diag_size, no_opt, get_blocks, do_tracking,draw_frame, socketid, block_thresh, degen, find_perfect, synteny_file, full_genome_files, prefixes, print_all_trees, single_only, brn_CI, draw_model);
+			optimize_single_arrange(&current_exchange, the_genomes, the_homologs, curr_model_matrix, root_matrix, post_probs_file, cond_probs_file, diag_size, no_opt, get_blocks, do_tracking,draw_frame, socketid, block_thresh, degen, find_perfect, synteny_file, full_genome_files, prefixes, print_all_trees, single_only, brn_CI, draw_model, have_loc_data);
 		else
 			optimize_all_trees(&current_exchange, the_genomes, the_homologs, curr_model_matrix, start, end, save_num, ortho_file);
 
@@ -177,18 +177,20 @@ int main(int argc, char *argv[])
 }
 
 void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes, std::string *&genome_files,
-                std::string &ortho_file, std::string &post_probs_file, std::string &model_file, std::string &root_model_file, string &cond_probs_file, std::string &synteny_file, BOOL &have_treefile, int &start, int & end,  int &save_num, int &diag_size, BOOL &no_opt, BOOL &get_blocks, BOOL &do_tracking, double &block_thresh, BOOL &degen,  BOOL &find_perfect, BOOL &draw_frame, std::string &socketid, std::string *&full_genome_files, std::string *&prefixes, BOOL &print_all_trees, BOOL &single_only, BOOL &brn_CI, BOOL &draw_model)
+                std::string &ortho_file, std::string &post_probs_file, std::string &model_file, std::string &root_model_file, string &cond_probs_file, std::string &synteny_file, BOOL &have_treefile, int &start, int & end,  int &save_num, int &diag_size, BOOL &no_opt, BOOL &get_blocks, BOOL &do_tracking, double &block_thresh, BOOL &degen,  BOOL &find_perfect, BOOL &draw_frame, std::string &socketid, std::string *&full_genome_files, std::string *&prefixes, BOOL &print_all_trees, BOOL &single_only, BOOL &brn_CI, BOOL &draw_model, BOOL &have_loc_data)
 {
     int i, j, cnt_genome=0, cnt_full=0, cnt_pre=0, pos;
     std::string treefile, block_string, size_string;
     char dump[30];
 	ifstream treein;
+    BOOL one_partial_loc=FALSE;
     
     block_thresh=0.9;
  
     full_genome_files=0;
     prefixes=0;
     
+    have_loc_data=FALSE;
     degen=FALSE;
 	have_treefile=FALSE;
     no_opt=FALSE;
@@ -229,6 +231,7 @@ void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes
 		case 'G':
             genome_files[cnt_genome]=argv[i];
             genome_files[cnt_genome]=genome_files[cnt_genome].substr(3, genome_files[cnt_genome].length()-3);
+            //cout<<"Genome "<<cnt_genome<<" is "<<genome_files[cnt_genome]<<endl;
 			cnt_genome++;
 		break;
 #ifdef _DO_PLOT_
@@ -355,9 +358,11 @@ void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes
         case 'f':
                 find_perfect=TRUE;
                 break;
-                
+
         case 'A':
         case 'a':
+                if (argv[i][1] == 'a') one_partial_loc=TRUE;
+                if (argv[i][1] == 'A') have_loc_data=TRUE;
                 if (full_genome_files==0) {
                     full_genome_files=new string [num_genomes];
                     for(j=0; j<num_genomes; j++) full_genome_files[j]="NONE";
@@ -365,8 +370,9 @@ void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes
                 full_genome_files[cnt_full]=argv[i];
                 full_genome_files[cnt_full]=full_genome_files[cnt_full].substr(3, full_genome_files[cnt_full].length()-3);
                 cnt_full++;
-                
+                cout<<"Have genome order data: "<<argv[i]<<endl;
             break;
+
         case 'k':
         case 'K':
                 if (prefixes ==0){
@@ -392,6 +398,13 @@ void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes
 		}
 
     }
+    
+    if ((have_loc_data==TRUE) &&( one_partial_loc==TRUE)) {
+        have_loc_data=FALSE;
+        delete full_genome_files;
+        full_genome_files=0;
+        cerr<<"ERROR: Mismatch in type of provided full genome lookup files"<<endl;
+    }
   
 }
 
@@ -399,7 +412,7 @@ void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes
 
 
 void optimize_single_arrange(Exchange *curr_exchange, Clade *the_genomes, WGX_Data *the_homologs, Phylo_Matrix *the_matrix, Phylo_Matrix *root_matrix, std::string post_probs_file,
-                             std::string cond_probs_file, int diag_size, BOOL no_opt, BOOL get_blocks, BOOL do_tracking, BOOL draw_frame, std::string socketid, double block_thresh, BOOL degen, BOOL find_perfect, std::string synteny_file, std::string *&full_genome_files, std::string *&prefixes, BOOL &print_all_trees, BOOL &single_only, BOOL brn_CI, BOOL draw_model)
+                             std::string cond_probs_file, int diag_size, BOOL no_opt, BOOL get_blocks, BOOL do_tracking, BOOL draw_frame, std::string socketid, double block_thresh, BOOL degen, BOOL find_perfect, std::string synteny_file, std::string *&full_genome_files, std::string *&prefixes, BOOL &print_all_trees, BOOL &single_only, BOOL brn_CI, BOOL draw_model, BOOL have_loc_data)
 //This function will optimize the model parameters given a single tree and ancestral arrangement
 {
     int i, j,k,**block_ends, **track_breaks, **multi_block_ends, *num_multi_blocks, stop_depth, num_genes, my_track;
@@ -568,13 +581,13 @@ void optimize_single_arrange(Exchange *curr_exchange, Clade *the_genomes, WGX_Da
 #ifdef POInT_daemon
         cout<<"Daemon plot enabled: socket id is "<<socketid<<endl;
         if (socketid != "") {
-            communicate_plots(curr_exchange, current_tree, the_matrix, the_model,  the_genomes, the_homologs, socketid, full_genome_files, prefixes);
+            communicate_plots(curr_exchange, current_tree, the_matrix, the_model,  the_genomes, the_homologs, socketid, full_genome_files, prefixes, have_loc_data);
         }
         else {
-            generate_frames(curr_exchange, current_tree, the_matrix, the_model,  the_genomes, the_homologs, full_genome_files, prefixes);
+            generate_frames(curr_exchange, current_tree, the_matrix, the_model,  the_genomes, the_homologs, full_genome_files, prefixes, have_loc_data);
         }
 #else
-        generate_frames(curr_exchange, current_tree, the_matrix, the_model,  the_genomes, the_homologs, full_genome_files, prefixes);
+        generate_frames(curr_exchange, current_tree, the_matrix, the_model,  the_genomes, the_homologs, full_genome_files, prefixes, have_loc_data);
 #endif
     }
 #endif
