@@ -22,13 +22,13 @@
 #endif
 
 #ifndef POInT_version
-#define POInT_version "v1.61"
+#define POInT_version "v1.62"
 #endif
 
 void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes, std::string *&genome_files,
-                std::string &ortho_file, std::string &post_probs_file, std::string &model_file, std::string &root_model_file, string &cond_probs_file, std::string &synteny_file, BOOL &have_treefile, int &start, int & end, int &save_num, int &diag_size, BOOL &no_opt, BOOL &get_blocks, BOOL &do_tracking, double &block_thresh, BOOL &degen, BOOL &find_perfect, BOOL &draw_frame, std::string &socketid, std::string *&full_genome_files, std::string *&prefixes,  BOOL &print_all_trees, BOOL &single_only, BOOL &brn_CI, BOOL &draw_model, BOOL &have_loc_data);
+                std::string &ortho_file, std::string &post_probs_file, std::string &model_file, std::string &root_model_file, string &cond_probs_file, std::string &synteny_file, BOOL &have_treefile, int &start, int & end, int &save_num, int &diag_size, BOOL &no_opt, BOOL &get_blocks, BOOL &do_tracking, double &block_thresh, double &tol, BOOL &degen, BOOL &find_perfect, BOOL &draw_frame, std::string &socketid, std::string *&full_genome_files, std::string *&prefixes,  BOOL &print_all_trees, BOOL &single_only, BOOL &brn_CI, BOOL &draw_model, BOOL &have_loc_data);
 
-void optimize_single_arrange(Exchange *curr_exchange, Clade *the_genomes, WGX_Data *the_homologs, Phylo_Matrix *the_matrix, Phylo_Matrix *root_matrix, std::string post_probs_file, std::string cond_probs_file, int diag_size, BOOL no_opt, BOOL get_blocks, BOOL do_tracking, BOOL draw_frame, std::string socketid, double block_thresh, BOOL degen, BOOL find_perfect, std::string synteny_file, std::string *&full_genome_files, std::string *&prefixes,BOOL &print_all_trees, BOOL &single_only, BOOL brn_CI, BOOL draw_model, BOOL have_loc_data);
+void optimize_single_arrange(Exchange *curr_exchange, Clade *the_genomes, WGX_Data *the_homologs, Phylo_Matrix *the_matrix, Phylo_Matrix *root_matrix, std::string post_probs_file, std::string cond_probs_file, int diag_size, BOOL no_opt, BOOL get_blocks, BOOL do_tracking, BOOL draw_frame, std::string socketid, double block_thresh, double tol, BOOL degen, BOOL find_perfect, std::string synteny_file, std::string *&full_genome_files, std::string *&prefixes,BOOL &print_all_trees, BOOL &single_only, BOOL brn_CI, BOOL draw_model, BOOL have_loc_data);
 
 #ifdef _DO_PLOT_
 void print_blocks(Exchange *curr_exchange, Clade *the_genomes, WGX_Data *the_homologs, Phylo_Matrix *the_matrix, Ploidy_Like_model *the_model, Tree *current_tree, int **&block_ends, int **&track_breaks, double block_thresh, BOOL degen);
@@ -68,7 +68,7 @@ void write_probs(std::string prob_file, int taxa_id, WGX_Data *the_homologs, Exc
 int main(int argc, char *argv[])
 {
 	int i, num_genomes, num_homologs, start, end, **block_ends, **track_breaks, save_num, diag_size;
-    double block_thresh;
+    double block_thresh, tol;
 	std::string *genome_files, ortho_file, post_probs_file, model_file, root_model_file, cond_probs_file, socketid,	  synteny_file, *full_genome_files, *prefixes;
 	BOOL have_treefile, no_opt, get_blocks, do_tracking, degen, find_perfect, draw_frame, print_all_trees, single_only, brn_CI, draw_model, have_loc_data;
 	Exchange current_exchange;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
 	if (argc > 3) {
 		parse_args(argc, argv, &current_exchange, num_genomes, genome_files, ortho_file, post_probs_file, model_file, root_model_file, cond_probs_file, synteny_file,
-			have_treefile, start, end, save_num, diag_size, no_opt, get_blocks, do_tracking, block_thresh, degen, find_perfect, draw_frame, socketid, full_genome_files, prefixes,  print_all_trees, single_only, brn_CI, draw_model, have_loc_data);
+			have_treefile, start, end, save_num, diag_size, no_opt, get_blocks, do_tracking, block_thresh, tol, degen, find_perfect, draw_frame, socketid, full_genome_files, prefixes,  print_all_trees, single_only, brn_CI, draw_model, have_loc_data);
         //cout<<"Got arguements"<<flush<<endl;
 
 		list_of_genomes=new Genome * [num_genomes];
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
         }
         
 		the_homologs=read_homologs.get_data(ortho_file, curr_model_matrix->get_num_levels(), num_homologs, the_genomes);
-        
+    
        // for(i=0; i<current_exchange.get_num_taxa(); i++)
         //    cout<<"Main Site 9073 taxa "<<i<<" num dupls: "<<(*the_homologs)[9073][i].get_dupl_count()<<endl;
 
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 		
 		
 		if (have_treefile == TRUE)
-			optimize_single_arrange(&current_exchange, the_genomes, the_homologs, curr_model_matrix, root_matrix, post_probs_file, cond_probs_file, diag_size, no_opt, get_blocks, do_tracking,draw_frame, socketid, block_thresh, degen, find_perfect, synteny_file, full_genome_files, prefixes, print_all_trees, single_only, brn_CI, draw_model, have_loc_data);
+			optimize_single_arrange(&current_exchange, the_genomes, the_homologs, curr_model_matrix, root_matrix, post_probs_file, cond_probs_file, diag_size, no_opt, get_blocks, do_tracking,draw_frame, socketid, block_thresh, tol, degen, find_perfect, synteny_file, full_genome_files, prefixes, print_all_trees, single_only, brn_CI, draw_model, have_loc_data);
 		else
 			optimize_all_trees(&current_exchange, the_genomes, the_homologs, curr_model_matrix, start, end, save_num, ortho_file);
 
@@ -167,9 +167,9 @@ int main(int argc, char *argv[])
 	else
 	{
 #ifdef _DO_PLOT_
-        cerr<<"POInT "<<POInT_version<<"\nUsage: POInT -g:<genome file> -g:<genome file> -o:<ortholog file> -m:<Model file>  (-r:<Root model file>) (-t:treefile)\n"<<"(-p:<posteriortrackprobs file>) (-b:#) (-B:#) (-i:#) (-w) (-c:<conditional probabilities file> (-no_opt) (-s:<start>:<end>) (-zerolengthfixed) (-x:#TreestoSave) (-a:<complete genome file>) (-estimateBrnCI) (-h:save all single copy gene trees) (-H:Save all gene trees) (-q:FullSyntenyGenesFile) (-draw_models)\n";
+        cerr<<"POInT "<<POInT_version<<"\nUsage: POInT -g:<genome file> -g:<genome file> -o:<ortholog file> -m:<Model file>  (-r:<Root model file>) (-t:treefile)\n"<<"(-p:<posteriortrackprobs file>) (-b:#) (-B:#) (-i:#) (-w) (-c:<conditional probabilities file> (-no_opt) (-s:<start>:<end>) (-zerolengthfixed) (-x:#TreestoSave) (-a:<complete genome file>) (-estimateBrnCI) (-h:save all single copy gene trees) (-H:Save all gene trees) (-q:FullSyntenyGenesFile) (-draw_models) (-l:Tolerence)\n";
 #else
-        cerr<<"POInT "<<POInT_version<<"\nUsage: POInT -g:<genome file> -g:<genome file> -o:<ortholog file> -m:<Model file>  (-r:<Root model file>) (-t:treefile)\n"<<"(-p:<posteriortrackprobs file>) (-c:<conditional probabilities file> (-no_opt) (-s:<start>:<end>) (-zerolengthfixed) (-x:#TreestoSave) (-estimateBrnCI) (-h:save all single copy gene trees) (-H:Save all gene trees) (-q:FullSyntenyGenesFile)\n";
+        cerr<<"POInT "<<POInT_version<<"\nUsage: POInT -g:<genome file> -g:<genome file> -o:<ortholog file> -m:<Model file>  (-r:<Root model file>) (-t:treefile)\n"<<"(-p:<posteriortrackprobs file>) (-c:<conditional probabilities file> (-no_opt) (-s:<start>:<end>) (-zerolengthfixed) (-x:#TreestoSave) (-estimateBrnCI) (-h:save all single copy gene trees) (-H:Save all gene trees) (-q:FullSyntenyGenesFile) (-l:Tolerence)\n";
 #endif
 		return(-1);
 	}
@@ -177,12 +177,13 @@ int main(int argc, char *argv[])
 }
 
 void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes, std::string *&genome_files,
-                std::string &ortho_file, std::string &post_probs_file, std::string &model_file, std::string &root_model_file, string &cond_probs_file, std::string &synteny_file, BOOL &have_treefile, int &start, int & end,  int &save_num, int &diag_size, BOOL &no_opt, BOOL &get_blocks, BOOL &do_tracking, double &block_thresh, BOOL &degen,  BOOL &find_perfect, BOOL &draw_frame, std::string &socketid, std::string *&full_genome_files, std::string *&prefixes, BOOL &print_all_trees, BOOL &single_only, BOOL &brn_CI, BOOL &draw_model, BOOL &have_loc_data)
+                std::string &ortho_file, std::string &post_probs_file, std::string &model_file, std::string &root_model_file, string &cond_probs_file, std::string &synteny_file, BOOL &have_treefile, int &start, int & end,  int &save_num, int &diag_size, BOOL &no_opt, BOOL &get_blocks, BOOL &do_tracking, double &block_thresh, double &tol, BOOL &degen,  BOOL &find_perfect, BOOL &draw_frame, std::string &socketid, std::string *&full_genome_files, std::string *&prefixes, BOOL &print_all_trees, BOOL &single_only, BOOL &brn_CI, BOOL &draw_model, BOOL &have_loc_data)
 {
     int i, j, cnt_genome=0, cnt_full=0, cnt_pre=0, pos;
-    std::string treefile, block_string, size_string;
+    std::string treefile, block_string, size_string, tol_string;
     char dump[30];
 	ifstream treein;
+    std::stringstream ss;
     BOOL one_partial_loc=FALSE;
     
     block_thresh=0.9;
@@ -208,6 +209,7 @@ void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes
     synteny_file="NONE";
     save_num=1;
     diag_size=20;
+    tol=1e-5;
     
 	num_genomes=0;
 	start=end=-1;
@@ -257,6 +259,7 @@ void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes
                 
                 break;
         case 'd':
+                break;
         case 'D':
                 draw_model=TRUE;
                 break;
@@ -387,7 +390,15 @@ void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes
         case 'E':
                 brn_CI=TRUE;
                 break;
+        case 'l':
+        case 'L':
+                tol_string=argv[i];
+                tol_string=tol_string.substr(3,tol_string.length()-3);
                 
+                ss<<tol_string;
+                ss>>tol;
+                cout<<"Setting optimization tolerance to "<<tol<<endl;
+                break;
         case 'h':
                 single_only=TRUE;
         case 'H':
@@ -412,7 +423,7 @@ void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes
 
 
 void optimize_single_arrange(Exchange *curr_exchange, Clade *the_genomes, WGX_Data *the_homologs, Phylo_Matrix *the_matrix, Phylo_Matrix *root_matrix, std::string post_probs_file,
-                             std::string cond_probs_file, int diag_size, BOOL no_opt, BOOL get_blocks, BOOL do_tracking, BOOL draw_frame, std::string socketid, double block_thresh, BOOL degen, BOOL find_perfect, std::string synteny_file, std::string *&full_genome_files, std::string *&prefixes, BOOL &print_all_trees, BOOL &single_only, BOOL brn_CI, BOOL draw_model, BOOL have_loc_data)
+                             std::string cond_probs_file, int diag_size, BOOL no_opt, BOOL get_blocks, BOOL do_tracking, BOOL draw_frame, std::string socketid, double block_thresh, double tol, BOOL degen, BOOL find_perfect, std::string synteny_file, std::string *&full_genome_files, std::string *&prefixes, BOOL &print_all_trees, BOOL &single_only, BOOL brn_CI, BOOL draw_model, BOOL have_loc_data)
 //This function will optimize the model parameters given a single tree and ancestral arrangement
 {
     int i, j,k,**block_ends, **track_breaks, **multi_block_ends, *num_multi_blocks, stop_depth, num_genes, my_track;
@@ -428,6 +439,7 @@ void optimize_single_arrange(Exchange *curr_exchange, Clade *the_genomes, WGX_Da
     
 
     outtreefile =  std::string (curr_exchange->get_treefile()) + ".out";
+    current_powell.set_tolerance(tol);
     
    if (the_matrix->model_is_branch_specific() ==FALSE)
         current_tree=get_tree.create_tree_from_file(curr_exchange, curr_exchange->get_dataset(), the_matrix, TRUE);
@@ -1072,7 +1084,7 @@ int draw_block_diagram( Clade *the_genomes, WGX_Data *the_homologs,  int **block
 
 void optimize_all_trees(Exchange *curr_exchange, Clade *the_genomes, WGX_Data *the_homologs, Phylo_Matrix *the_matrix, int start, int end, int num_save, string order_file)
 {
-	string prog_name, treefile;
+	string prog_name, treefile, tree_sub;
 	Exhaustive_Tree_PhyloMat_searcher *the_searcher;
   
 
@@ -1083,7 +1095,11 @@ void optimize_all_trees(Exchange *curr_exchange, Clade *the_genomes, WGX_Data *t
     prog_name = prog_name + ss2.str();
     prog_name = prog_name + " (optimal tree)";
    
-    treefile = "searchWGXexhaust_" + order_file;
+    stringstream ss3;
+    ss3 <<"s"<<start<<"e"<<end<<"n"<<num_save;
+    tree_sub = ss3.str();
+    
+    treefile = "searchWGXexhaust_" + order_file + "_" + tree_sub;
     
     curr_exchange->set_treefile(treefile.c_str());
     the_searcher=new Exhaustive_Tree_PhyloMat_searcher(curr_exchange, the_genomes, the_homologs, the_matrix, num_save);
