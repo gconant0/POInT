@@ -1687,9 +1687,9 @@ void Write_Tree_Arb_Model::write_descript_string()
     char temp_num[42];
     
     if (root_matrix ==0)
-        dlines = the_matrix->get_num_params()+3;
+        dlines = the_matrix->get_num_params()+4;
     else
-        dlines = the_matrix->get_num_params() + root_matrix->get_num_params()+5;
+        dlines = the_matrix->get_num_params() + root_matrix->get_num_params()+6;
     
     descript=new char*[dlines];
     for(i=0; i<dlines; i++)
@@ -1697,9 +1697,12 @@ void Write_Tree_Arb_Model::write_descript_string()
     
     cout<<"Writing tree for model: "<<the_matrix->get_model_name()<<endl;
     strcpy(descript[0], program_name);
-    strcpy(descript[1], the_matrix->get_model_name().c_str());
+    strcpy(descript[1], "Homolog order file: ");
+    strcat(descript[1], curr_exchange->get_datafile());
+    strcpy(descript[2], the_matrix->get_model_name().c_str());
+
     
-    pos=2;
+    pos=3;
     for(i=0; i<the_matrix->get_num_params(); i++) {
         cout<<"Storing parameter "<<the_matrix->get_param_name(i)<<endl;
         strcpy(descript[pos], the_matrix->get_param_name(i).c_str());

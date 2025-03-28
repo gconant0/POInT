@@ -22,7 +22,7 @@
 #endif
 
 #ifndef POInT_version
-#define POInT_version "v1.62"
+#define POInT_version "v1.63"
 #endif
 
 void parse_args(int argc, char** argv, Exchange *curr_exchange, int &num_genomes, std::string *&genome_files,
@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
         
 		the_homologs=read_homologs.get_data(ortho_file, curr_model_matrix->get_num_levels(), num_homologs, the_genomes);
     
+        current_exchange.set_datafile(ortho_file.c_str());
        // for(i=0; i<current_exchange.get_num_taxa(); i++)
         //    cout<<"Main Site 9073 taxa "<<i<<" num dupls: "<<(*the_homologs)[9073][i].get_dupl_count()<<endl;
 
